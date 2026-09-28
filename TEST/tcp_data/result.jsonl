@@ -1,0 +1,1 @@
+{"packet_id":1,"timestamp":1790530617.485225,"src_ip":"192.168.1.10","dst_ip":"192.168.1.20","network":{"protocol":"IPv4","ttl":64,"identification":1,"flags":""},"transport":{"protocol":"TCP","src_port":50000,"dst_port":80,"seq":0,"ack":0,"flags":"PA","payload_length":9},"application":{"protocol":"UNKNOWN"},"payload_length":9,"status":"OK","errors":[]}
