@@ -1,0 +1,11 @@
+test_bad_ip_invalid (tests.test_assignment2_preprocessor.PreprocessorNormalizationTestCase.test_bad_ip_invalid) ... ok
+test_ip_normalization (tests.test_assignment2_preprocessor.PreprocessorNormalizationTestCase.test_ip_normalization) ... ok
+test_leading_zero_ipv4_invalid (tests.test_assignment2_preprocessor.PreprocessorNormalizationTestCase.test_leading_zero_ipv4_invalid) ... ok
+test_protocol_and_header_normalization (tests.test_assignment2_preprocessor.PreprocessorNormalizationTestCase.test_protocol_and_header_normalization) ... ok
+test_timestamp_and_uri_normalization (tests.test_assignment2_preprocessor.PreprocessorNormalizationTestCase.test_timestamp_and_uri_normalization) ... ok
+test_unsupported_protocol_partial (tests.test_assignment2_preprocessor.PreprocessorNormalizationTestCase.test_unsupported_protocol_partial) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.001s
+
+OK
