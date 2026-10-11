@@ -1,0 +1,8 @@
+test_entity_decode_no_crash (tests.test_assignment2_decoder.DecoderHtmlTestCase.test_entity_decode_no_crash) ... ok
+test_html_entities_decoded (tests.test_assignment2_decoder.DecoderHtmlTestCase.test_html_entities_decoded) ... ok
+test_plain_body_not_html (tests.test_assignment2_decoder.DecoderHtmlTestCase.test_plain_body_not_html) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK
