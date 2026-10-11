@@ -1,0 +1,7 @@
+test_missing_optional_fields_no_crash (tests.test_assignment2_preprocessor.PreprocessorMissingFieldsTestCase.test_missing_optional_fields_no_crash) ... ok
+test_missing_required_field_invalid (tests.test_assignment2_preprocessor.PreprocessorMissingFieldsTestCase.test_missing_required_field_invalid) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
