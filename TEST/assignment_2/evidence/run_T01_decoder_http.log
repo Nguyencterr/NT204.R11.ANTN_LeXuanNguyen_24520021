@@ -1,0 +1,10 @@
+test_form_plus_becomes_space (tests.test_assignment2_decoder.DecoderHttpTestCase.test_form_plus_becomes_space) ... ok
+test_form_semantics_not_applied_to_path (tests.test_assignment2_decoder.DecoderHttpTestCase.test_form_semantics_not_applied_to_path) ... ok
+test_malformed_percent_reported_partial (tests.test_assignment2_decoder.DecoderHttpTestCase.test_malformed_percent_reported_partial) ... ok
+test_unit_decode_urlencoded (tests.test_assignment2_decoder.DecoderHttpTestCase.test_unit_decode_urlencoded) ... ok
+test_uri_percent_decoding (tests.test_assignment2_decoder.DecoderHttpTestCase.test_uri_percent_decoding) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.001s
+
+OK
