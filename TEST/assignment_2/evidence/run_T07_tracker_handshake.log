@@ -1,0 +1,7 @@
+test_handshake_reaches_established (tests.test_assignment2_tracker.TrackerHandshakeTestCase.test_handshake_reaches_established) ... ok
+test_syn_counts_each_syn_packet (tests.test_assignment2_tracker.TrackerHandshakeTestCase.test_syn_counts_each_syn_packet) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
