@@ -1,0 +1,8 @@
+test_fin_both_directions_closes_immediately (tests.test_assignment2_tracker.TrackerCloseTestCase.test_fin_both_directions_closes_immediately) ... ok
+test_fin_moves_to_closing (tests.test_assignment2_tracker.TrackerCloseTestCase.test_fin_moves_to_closing) ... ok
+test_rst_is_terminal (tests.test_assignment2_tracker.TrackerCloseTestCase.test_rst_is_terminal) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+OK
