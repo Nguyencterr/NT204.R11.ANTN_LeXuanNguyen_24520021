@@ -1,0 +1,8 @@
+test_invalid_event_then_valid_event (tests.test_assignment2_pipeline.TrackerMalformedTestCase.test_invalid_event_then_valid_event) ... ok
+test_truncated_dict_input (tests.test_assignment2_pipeline.TrackerMalformedTestCase.test_truncated_dict_input) ... ok
+test_invalid_policy_skip (tests.test_assignment2_pipeline.PipelineEndToEndTestCase.test_invalid_policy_skip) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK
