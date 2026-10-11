@@ -1,0 +1,9 @@
+test_empty_payload_safe (tests.test_assignment2_decoder.DecoderCharactersTestCase.test_empty_payload_safe) ... ok
+test_invalid_utf8_partial (tests.test_assignment2_decoder.DecoderCharactersTestCase.test_invalid_utf8_partial) ... ok
+test_size_limit_marks_partial (tests.test_assignment2_decoder.DecoderCharactersTestCase.test_size_limit_marks_partial) ... ok
+test_valid_utf8_ok (tests.test_assignment2_decoder.DecoderCharactersTestCase.test_valid_utf8_ok) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.000s
+
+OK
