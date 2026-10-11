@@ -1,0 +1,22 @@
+events file: TEST/assignment_2/evidence/smoke_events.jsonl
+  lines parsed OK: 15
+flows file:  TEST/assignment_2/evidence/smoke_flows.jsonl
+  lines parsed OK: 7
+
+-- flows --
+CLOSED       TCP  UNKNOWN  pkts=5 fwd=3 bwd=2 bytes=270 syn=2 ack=4 fin=2 rst=0 reason=closed
+ESTABLISHED  TCP  HTTP     pkts=2 fwd=1 bwd=1 bytes=264 syn=0 ack=2 fin=0 rst=0 reason=timeout
+ESTABLISHED  TCP  SMTP     pkts=2 fwd=1 bwd=1 bytes=279 syn=0 ack=2 fin=0 rst=0 reason=timeout
+OPEN         UDP  DNS      pkts=2 fwd=1 bwd=1 bytes=169 syn=0 ack=0 fin=0 rst=0 reason=timeout
+OPEN         UDP  DNS      pkts=1 fwd=1 bwd=0 bytes=69 syn=0 ack=0 fin=0 rst=0 reason=timeout
+ESTABLISHED  TCP  UNKNOWN  pkts=1 fwd=1 bwd=0 bytes=58 syn=0 ack=1 fin=0 rst=0 reason=timeout
+RESET        TCP  UNKNOWN  pkts=2 fwd=1 bwd=1 bytes=108 syn=1 ack=0 fin=0 rst=1 reason=reset
+
+-- decoded highlights --
+T01 packet_id=6 raw='/search?q=%27%20OR%201%3D1' decoded="/search?q=' OR 1=1"
+T02 packet_id=7 html_decoded='<html><script>alert(1)</script></html>'
+T03 packet_id=8 base64 body='Hello World' status=ok
+T03 packet_id=9 quoted-printable body='Café = tasty' status=ok
+T04 packet_id=10 text_status=partial decode_status=partial
+T04 packet_id=11 text_status=partial decode_status=partial
+T04 packet_id=13 text_status=partial decode_status=partial
