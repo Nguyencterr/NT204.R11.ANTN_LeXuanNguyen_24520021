@@ -1,67 +1,78 @@
 import argparse
-import json
 from pathlib import Path
 
 from scapy.all import get_if_list
 
 from capture.live import start_live_capture
 from capture.pcap import read_pcap
+from common.jsonl import JsonlWriter, reset_file
+from config import (
+    INVALID_EVENT_POLICIES,
+    PipelineConfig,
+)
 from parser import parse_packet
+from pipeline import IdsPipeline
 
 
-def write_event(
-    event,
+def build_pipeline(
+    config: PipelineConfig,
     output_file: Path,
-) -> None:
+    flows_output: Path,
+) -> tuple[IdsPipeline, JsonlWriter, JsonlWriter]:
+    """Create a pipeline that writes events and flows to separate JSONL files."""
 
-    output_file.parent.mkdir(
-        parents=True,
-        exist_ok=True,
+    # Avoid accidentally appending old results.
+    reset_file(output_file)
+    reset_file(flows_output)
+
+    event_writer = JsonlWriter(output_file)
+    flow_writer = JsonlWriter(flows_output)
+
+    pipeline = IdsPipeline(
+        config=config,
+        event_handler=event_writer.write,
+        flow_handler=flow_writer.write,
     )
 
-    with output_file.open(
-        "a",
-        encoding="utf-8",
-    ) as f:
-
-        json.dump(
-            event.to_dict(),
-            f,
-            ensure_ascii=False,
-            separators=(",", ":"),
-        )
-
-        f.write("\n")
+    return pipeline, event_writer, flow_writer
 
 
 def process_pcap(
     pcap_file: str,
     output_file: Path,
+    flows_output: Path,
+    config: PipelineConfig,
 ) -> None:
 
-    # Avoid accidentally appending old results.
-    if output_file.exists():
-        output_file.unlink()
+    pipeline, event_writer, flow_writer = build_pipeline(
+        config,
+        output_file,
+        flows_output,
+    )
 
     packet_id = 0
 
-    for packet in read_pcap(
-        pcap_file
-    ):
+    try:
 
-        packet_id += 1
+        for packet in read_pcap(pcap_file):
 
-        event = parse_packet(
-            packet,
-            packet_id,
-        )
+            packet_id += 1
 
-        if event is not None:
-
-            write_event(
-                event,
-                output_file,
+            event = parse_packet(
+                packet,
+                packet_id,
             )
+
+            if event is not None:
+
+                pipeline.process(event)
+
+        pipeline.flush()
+
+    finally:
+
+        event_writer.close()
+        flow_writer.close()
 
     print(
         f"Finished processing "
@@ -69,18 +80,30 @@ def process_pcap(
     )
 
     print(
-        f"Output: {output_file}"
+        f"Events: {output_file} "
+        f"({pipeline.processed_count} written, "
+        f"{pipeline.skipped_count} skipped)"
+    )
+
+    print(
+        f"Flows:  {flows_output} "
+        f"({pipeline.flow_count} finalized)"
     )
 
 
 def process_live(
     interface: str,
     output_file: Path,
+    flows_output: Path,
     count: int,
+    config: PipelineConfig,
 ) -> None:
 
-    if output_file.exists():
-        output_file.unlink()
+    pipeline, event_writer, flow_writer = build_pipeline(
+        config,
+        output_file,
+        flows_output,
+    )
 
     packet_id = 0
 
@@ -98,23 +121,47 @@ def process_live(
         if event is None:
             return
 
-        write_event(
-            event,
-            output_file,
-        )
+        processed = pipeline.process(event)
+
+        if processed is None:
+            return
 
         print(
             f"[{packet_id}] "
-            f"{event.src_ip} -> "
-            f"{event.dst_ip} | "
-            f"{event.transport.get('protocol', 'UNKNOWN')} | "
-            f"{event.application.get('protocol', 'UNKNOWN')}"
+            f"{processed.get('src_ip')} -> "
+            f"{processed.get('dst_ip')} | "
+            f"{processed.get('transport_protocol', 'UNKNOWN')} | "
+            f"{processed.get('application_protocol', 'UNKNOWN')}"
         )
 
-    start_live_capture(
-        interface=interface,
-        callback=handle_packet,
-        count=count,
+    try:
+
+        start_live_capture(
+            interface=interface,
+            callback=handle_packet,
+            count=count,
+        )
+
+    except KeyboardInterrupt:
+
+        print("\nCapture interrupted. Flushing active flows...")
+
+    finally:
+
+        pipeline.flush()
+
+        event_writer.close()
+        flow_writer.close()
+
+    print(
+        f"Events: {output_file} "
+        f"({pipeline.processed_count} written, "
+        f"{pipeline.skipped_count} skipped)"
+    )
+
+    print(
+        f"Flows:  {flows_output} "
+        f"({pipeline.flow_count} finalized)"
     )
 
 
@@ -133,7 +180,8 @@ def build_parser():
 
     parser = argparse.ArgumentParser(
         description=(
-            "Packet Capture & Parser for IDS"
+            "Packet Capture & Parser for IDS "
+            "(Decoder -> Preprocessor -> Flow Tracker)"
         )
     )
 
@@ -152,6 +200,13 @@ def build_parser():
     parser.add_argument(
         "--output",
         default="output/events.jsonl",
+        help="Event JSONL output path",
+    )
+
+    parser.add_argument(
+        "--flows-output",
+        default="output/flows.jsonl",
+        help="Finalized flow JSONL output path",
     )
 
     parser.add_argument(
@@ -164,6 +219,41 @@ def build_parser():
     parser.add_argument(
         "--list-interfaces",
         action="store_true",
+    )
+
+    parser.add_argument(
+        "--tcp-idle-timeout",
+        type=float,
+        default=PipelineConfig.tcp_idle_timeout,
+        help="TCP idle timeout in seconds (default: %(default)s)",
+    )
+
+    parser.add_argument(
+        "--udp-idle-timeout",
+        type=float,
+        default=PipelineConfig.udp_idle_timeout,
+        help="UDP idle timeout in seconds (default: %(default)s)",
+    )
+
+    parser.add_argument(
+        "--max-decoded-size",
+        type=int,
+        default=PipelineConfig.max_decoded_size,
+        help="Max decoded string size in characters (default: %(default)s)",
+    )
+
+    parser.add_argument(
+        "--max-payload-size",
+        type=int,
+        default=PipelineConfig.max_payload_size,
+        help="Max raw payload size handled by the Decoder (default: %(default)s)",
+    )
+
+    parser.add_argument(
+        "--invalid-event-policy",
+        choices=INVALID_EVENT_POLICIES,
+        default=PipelineConfig.invalid_event_policy,
+        help="Handling of invalid/unsupported events (default: %(default)s)",
     )
 
     return parser
@@ -187,8 +277,20 @@ def main():
 
         return
 
+    config = PipelineConfig(
+        tcp_idle_timeout=args.tcp_idle_timeout,
+        udp_idle_timeout=args.udp_idle_timeout,
+        max_decoded_size=args.max_decoded_size,
+        max_payload_size=args.max_payload_size,
+        invalid_event_policy=args.invalid_event_policy,
+    )
+
     output_file = Path(
         args.output
+    )
+
+    flows_output = Path(
+        args.flows_output
     )
 
     if args.pcap:
@@ -207,6 +309,8 @@ def main():
         process_pcap(
             args.pcap,
             output_file,
+            flows_output,
+            config,
         )
 
         return
@@ -214,7 +318,9 @@ def main():
     process_live(
         args.interface,
         output_file,
+        flows_output,
         args.count,
+        config,
     )
 
 
