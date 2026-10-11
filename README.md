@@ -297,9 +297,16 @@ Mỗi testcase gồm `input.pcap` + `result.jsonl` trong `TEST/`.
 Kết quả test gần nhất (chạy tại repo):
 
 ```text
-Ran 53 tests in 0.009s
+Ran 54 tests in 0.012s
 OK
 ```
+
+Phân bổ: decoder 16, preprocessor 14, tracker 15, pipeline 9.
+
+Báo cáo chi tiết từng testcase (mục tiêu, input, tiêu chí PASS, kết quả thực tế,
+bằng chứng và hạn chế) nằm tại
+[`TEST/assignment_2/reports/`](TEST/assignment_2/reports/README.md), kèm bằng
+chứng thô trong `TEST/assignment_2/evidence/`.
 
 Fixture tái hiện: `TEST/assignment_2/input_mixed.pcap`, `result_events.jsonl`, `result_flows.jsonl` (tạo bằng `tests/generate_assignment2_fixtures.py`).
 

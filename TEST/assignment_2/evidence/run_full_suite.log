@@ -1,0 +1,67 @@
+test_empty_payload_safe (test_assignment2_decoder.DecoderCharactersTestCase.test_empty_payload_safe) ... ok
+test_invalid_utf8_partial (test_assignment2_decoder.DecoderCharactersTestCase.test_invalid_utf8_partial) ... ok
+test_size_limit_marks_partial (test_assignment2_decoder.DecoderCharactersTestCase.test_size_limit_marks_partial) ... ok
+test_valid_utf8_ok (test_assignment2_decoder.DecoderCharactersTestCase.test_valid_utf8_ok) ... ok
+test_entity_decode_no_crash (test_assignment2_decoder.DecoderHtmlTestCase.test_entity_decode_no_crash) ... ok
+test_html_entities_decoded (test_assignment2_decoder.DecoderHtmlTestCase.test_html_entities_decoded) ... ok
+test_plain_body_not_html (test_assignment2_decoder.DecoderHtmlTestCase.test_plain_body_not_html) ... ok
+test_form_plus_becomes_space (test_assignment2_decoder.DecoderHttpTestCase.test_form_plus_becomes_space) ... ok
+test_form_semantics_not_applied_to_path (test_assignment2_decoder.DecoderHttpTestCase.test_form_semantics_not_applied_to_path) ... ok
+test_malformed_percent_reported_partial (test_assignment2_decoder.DecoderHttpTestCase.test_malformed_percent_reported_partial) ... ok
+test_unit_decode_urlencoded (test_assignment2_decoder.DecoderHttpTestCase.test_unit_decode_urlencoded) ... ok
+test_uri_percent_decoding (test_assignment2_decoder.DecoderHttpTestCase.test_uri_percent_decoding) ... ok
+test_invalid_base64_reported_error (test_assignment2_decoder.DecoderMimeTestCase.test_invalid_base64_reported_error) ... ok
+test_mime_base64 (test_assignment2_decoder.DecoderMimeTestCase.test_mime_base64) ... ok
+test_mime_quoted_printable (test_assignment2_decoder.DecoderMimeTestCase.test_mime_quoted_printable) ... ok
+test_no_mime_header_is_not_forced (test_assignment2_decoder.DecoderMimeTestCase.test_no_mime_header_is_not_forced) ... ok
+test_dns_response (test_assignment2_pipeline.ParserIntegrationTestCase.test_dns_response) ... WARNING: getmacbyip failed on [Errno 1] Operation not permitted
+WARNING: MAC address to reach destination not found. Using broadcast.
+/home/Nguyencter/NT204.R11.ANTN_LeXuanNguyen_24520021/.venv/lib/python3.14/site-packages/scapy/layers/dns.py:1259: DeprecationWarning: The DNS fields 'qd', 'an', 'ns' and 'ar' are now PacketListField(s) ! To access the first element, use pkt.an[0] instead of pkt.an
+  warnings.warn(
+ok
+test_dns_udp_packet (test_assignment2_pipeline.ParserIntegrationTestCase.test_dns_udp_packet) ... WARNING: getmacbyip failed on [Errno 1] Operation not permitted
+WARNING: MAC address to reach destination not found. Using broadcast.
+ok
+test_http_get_packet (test_assignment2_pipeline.ParserIntegrationTestCase.test_http_get_packet) ... WARNING: more getmacbyip failed on [Errno 1] Operation not permitted
+WARNING: more MAC address to reach destination not found. Using broadcast.
+ok
+test_smtp_mime_base64_packet (test_assignment2_pipeline.ParserIntegrationTestCase.test_smtp_mime_base64_packet) ... ok
+test_full_pipeline_with_timeout (test_assignment2_pipeline.PipelineEndToEndTestCase.test_full_pipeline_with_timeout) ... ok
+test_invalid_policy_skip (test_assignment2_pipeline.PipelineEndToEndTestCase.test_invalid_policy_skip) ... ok
+test_jsonl_output_roundtrip (test_assignment2_pipeline.PipelineEndToEndTestCase.test_jsonl_output_roundtrip) ... ok
+test_invalid_event_then_valid_event (test_assignment2_pipeline.TrackerMalformedTestCase.test_invalid_event_then_valid_event) ... ok
+test_truncated_dict_input (test_assignment2_pipeline.TrackerMalformedTestCase.test_truncated_dict_input) ... ok
+test_missing_optional_fields_no_crash (test_assignment2_preprocessor.PreprocessorMissingFieldsTestCase.test_missing_optional_fields_no_crash) ... ok
+test_missing_required_field_invalid (test_assignment2_preprocessor.PreprocessorMissingFieldsTestCase.test_missing_required_field_invalid) ... ok
+test_bad_ip_invalid (test_assignment2_preprocessor.PreprocessorNormalizationTestCase.test_bad_ip_invalid) ... ok
+test_ip_normalization (test_assignment2_preprocessor.PreprocessorNormalizationTestCase.test_ip_normalization) ... ok
+test_leading_zero_ipv4_invalid (test_assignment2_preprocessor.PreprocessorNormalizationTestCase.test_leading_zero_ipv4_invalid) ... ok
+test_protocol_and_header_normalization (test_assignment2_preprocessor.PreprocessorNormalizationTestCase.test_protocol_and_header_normalization) ... ok
+test_timestamp_and_uri_normalization (test_assignment2_preprocessor.PreprocessorNormalizationTestCase.test_timestamp_and_uri_normalization) ... ok
+test_unsupported_protocol_partial (test_assignment2_preprocessor.PreprocessorNormalizationTestCase.test_unsupported_protocol_partial) ... ok
+test_bad_timestamp_invalid (test_assignment2_preprocessor.PreprocessorValidationTestCase.test_bad_timestamp_invalid) ... ok
+test_invalid_policy_keep (test_assignment2_preprocessor.PreprocessorValidationTestCase.test_invalid_policy_keep) ... ok
+test_invalid_policy_mark (test_assignment2_preprocessor.PreprocessorValidationTestCase.test_invalid_policy_mark) ... ok
+test_invalid_policy_skip (test_assignment2_preprocessor.PreprocessorValidationTestCase.test_invalid_policy_skip) ... ok
+test_port_out_of_range_invalid (test_assignment2_preprocessor.PreprocessorValidationTestCase.test_port_out_of_range_invalid) ... ok
+test_valid_event_keep (test_assignment2_preprocessor.PreprocessorValidationTestCase.test_valid_event_keep) ... ok
+test_reversed_endpoints_same_flow (test_assignment2_tracker.TrackerBidirectionalTestCase.test_reversed_endpoints_same_flow) ... ok
+test_fin_both_directions_closes_immediately (test_assignment2_tracker.TrackerCloseTestCase.test_fin_both_directions_closes_immediately) ... ok
+test_fin_moves_to_closing (test_assignment2_tracker.TrackerCloseTestCase.test_fin_moves_to_closing) ... ok
+test_rst_is_terminal (test_assignment2_tracker.TrackerCloseTestCase.test_rst_is_terminal) ... ok
+test_distinct_5_tuples_distinct_flows (test_assignment2_tracker.TrackerConcurrentTestCase.test_distinct_5_tuples_distinct_flows) ... ok
+test_same_flow_updates_instead_of_duplicating (test_assignment2_tracker.TrackerConcurrentTestCase.test_same_flow_updates_instead_of_duplicating) ... ok
+test_handshake_reaches_established (test_assignment2_tracker.TrackerHandshakeTestCase.test_handshake_reaches_established) ... ok
+test_syn_counts_each_syn_packet (test_assignment2_tracker.TrackerHandshakeTestCase.test_syn_counts_each_syn_packet) ... ok
+test_counters_and_duration (test_assignment2_tracker.TrackerStatsTestCase.test_counters_and_duration) ... ok
+test_payload_fallback_basis (test_assignment2_tracker.TrackerStatsTestCase.test_payload_fallback_basis) ... ok
+test_unknown_does_not_overwrite_known_app (test_assignment2_tracker.TrackerStatsTestCase.test_unknown_does_not_overwrite_known_app) ... ok
+test_tcp_idle_timeout (test_assignment2_tracker.TrackerTimeoutTestCase.test_tcp_idle_timeout) ... ok
+test_udp_idle_timeout (test_assignment2_tracker.TrackerTimeoutTestCase.test_udp_idle_timeout) ... ok
+test_within_timeout_no_expiry (test_assignment2_tracker.TrackerTimeoutTestCase.test_within_timeout_no_expiry) ... ok
+test_udp_query_response_single_flow (test_assignment2_tracker.TrackerUdpTestCase.test_udp_query_response_single_flow) ... ok
+
+----------------------------------------------------------------------
+Ran 54 tests in 0.016s
+
+OK
