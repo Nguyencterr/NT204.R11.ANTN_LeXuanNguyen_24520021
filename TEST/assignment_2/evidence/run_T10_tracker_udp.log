@@ -1,0 +1,14 @@
+test_udp_query_response_single_flow (tests.test_assignment2_tracker.TrackerUdpTestCase.test_udp_query_response_single_flow) ... ok
+test_dns_udp_packet (tests.test_assignment2_pipeline.ParserIntegrationTestCase.test_dns_udp_packet) ... WARNING: getmacbyip failed on [Errno 1] Operation not permitted
+WARNING: MAC address to reach destination not found. Using broadcast.
+/home/Nguyencter/NT204.R11.ANTN_LeXuanNguyen_24520021/.venv/lib/python3.14/site-packages/scapy/layers/dns.py:1259: DeprecationWarning: The DNS fields 'qd', 'an', 'ns' and 'ar' are now PacketListField(s) ! To access the first element, use pkt.an[0] instead of pkt.an
+  warnings.warn(
+ok
+test_dns_response (tests.test_assignment2_pipeline.ParserIntegrationTestCase.test_dns_response) ... WARNING: getmacbyip failed on [Errno 1] Operation not permitted
+WARNING: MAC address to reach destination not found. Using broadcast.
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.008s
+
+OK
