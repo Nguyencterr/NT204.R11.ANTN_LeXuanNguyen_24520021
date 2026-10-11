@@ -1,9 +1,54 @@
+import base64
+
 from scapy.packet import Packet
 
 from .application import parse_application
 from .network import parse_network
-from .normalized import NormalizedEvent
+from .normalized import (
+    MAX_RAW_PAYLOAD_BYTES,
+    NormalizedEvent,
+)
 from .transport import parse_transport
+
+
+def _bounded_payload(payload: bytes) -> tuple[str | None, bool]:
+    """
+    Base64-encode a bounded prefix of the raw payload.
+
+    Returns ``(encoded, truncated)``. ``encoded`` is ``None`` for empty
+    payloads so that JSONL stays compact and no non-serializable ``bytes``
+    leaks downstream.
+    """
+
+    if not payload:
+        return None, False
+
+    truncated = len(payload) > MAX_RAW_PAYLOAD_BYTES
+
+    prefix = payload[:MAX_RAW_PAYLOAD_BYTES]
+
+    return (
+        base64.b64encode(prefix).decode("ascii"),
+        truncated,
+    )
+
+
+def _packet_length(packet) -> int | None:
+    """
+    Best-effort full packet length. Returns ``None`` when Scapy cannot
+    reliably compute it; the tracker then documents a payload-length
+    fallback.
+    """
+
+    try:
+
+        length = int(len(packet))
+
+    except Exception:
+
+        return None
+
+    return length if length > 0 else None
 
 
 def parse_packet(
@@ -51,6 +96,8 @@ def parse_packet(
         timestamp=timestamp,
     )
 
+    event.packet_length = _packet_length(packet)
+
     try:
 
         # -----------------------------------------
@@ -78,6 +125,11 @@ def parse_packet(
             packet,
             event,
         )
+
+        (
+            event.raw_payload_b64,
+            event.raw_payload_truncated,
+        ) = _bounded_payload(payload)
 
         # -----------------------------------------
         # Application Parser
