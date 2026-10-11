@@ -1,0 +1,8 @@
+test_counters_and_duration (tests.test_assignment2_tracker.TrackerStatsTestCase.test_counters_and_duration) ... ok
+test_payload_fallback_basis (tests.test_assignment2_tracker.TrackerStatsTestCase.test_payload_fallback_basis) ... ok
+test_unknown_does_not_overwrite_known_app (tests.test_assignment2_tracker.TrackerStatsTestCase.test_unknown_does_not_overwrite_known_app) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK
