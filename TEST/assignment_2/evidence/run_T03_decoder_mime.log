@@ -1,0 +1,12 @@
+test_invalid_base64_reported_error (tests.test_assignment2_decoder.DecoderMimeTestCase.test_invalid_base64_reported_error) ... ok
+test_mime_base64 (tests.test_assignment2_decoder.DecoderMimeTestCase.test_mime_base64) ... ok
+test_mime_quoted_printable (tests.test_assignment2_decoder.DecoderMimeTestCase.test_mime_quoted_printable) ... ok
+test_no_mime_header_is_not_forced (tests.test_assignment2_decoder.DecoderMimeTestCase.test_no_mime_header_is_not_forced) ... ok
+test_smtp_mime_base64_packet (tests.test_assignment2_pipeline.ParserIntegrationTestCase.test_smtp_mime_base64_packet) ... WARNING: getmacbyip failed on [Errno 1] Operation not permitted
+WARNING: MAC address to reach destination not found. Using broadcast.
+ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.007s
+
+OK
