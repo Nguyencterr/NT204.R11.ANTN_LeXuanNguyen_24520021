@@ -3,6 +3,7 @@
 import unittest
 
 from config import PipelineConfig
+from decoder import decode_event
 from preprocessor import (
     ACTION_KEEP,
     ACTION_MARK,
@@ -120,6 +121,36 @@ class PreprocessorNormalizationTestCase(unittest.TestCase):
             STATUS_INVALID,
         )
         self.assertIn("src_ip", result["preprocess_reason"])
+
+    def test_timestamp_and_uri_normalization(self):
+
+        event = make_event(
+            timestamp=100,
+            application={
+                "protocol": "HTTP",
+                "type": "request",
+                "path": "/search?q=%27%20OR%201%3D1",
+                "headers": {"Host": "Example.COM"},
+                "body": "",
+            },
+        )
+
+        # URI normalization uses the decoder output while keeping raw values.
+        decoded = decode_event(event)
+        result = preprocess_event(decoded)
+
+        normalized = result["normalized"]
+
+        self.assertEqual(normalized["timestamp"], 100.0)
+        self.assertIsInstance(normalized["timestamp"], float)
+        self.assertEqual(normalized["uri"], "/search?q=' OR 1=1")
+        self.assertEqual(normalized["host"], "example.com")
+
+        # Raw path is preserved by the decoder.
+        self.assertEqual(
+            result["decoded"]["http"]["raw_uri"],
+            "/search?q=%27%20OR%201%3D1",
+        )
 
     def test_unsupported_protocol_partial(self):
 
