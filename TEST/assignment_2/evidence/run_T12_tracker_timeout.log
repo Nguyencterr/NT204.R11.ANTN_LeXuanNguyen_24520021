@@ -1,0 +1,8 @@
+test_tcp_idle_timeout (tests.test_assignment2_tracker.TrackerTimeoutTestCase.test_tcp_idle_timeout) ... ok
+test_udp_idle_timeout (tests.test_assignment2_tracker.TrackerTimeoutTestCase.test_udp_idle_timeout) ... ok
+test_within_timeout_no_expiry (tests.test_assignment2_tracker.TrackerTimeoutTestCase.test_within_timeout_no_expiry) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK
