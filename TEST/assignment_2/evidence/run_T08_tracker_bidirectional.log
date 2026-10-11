@@ -1,0 +1,6 @@
+test_reversed_endpoints_same_flow (tests.test_assignment2_tracker.TrackerBidirectionalTestCase.test_reversed_endpoints_same_flow) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
