@@ -1,0 +1,21 @@
+$ .venv/bin/python -m core_engine.rule_loader --rules rules/web.rules --rules rules/missing.rules --base-dir . --stats
+ERROR core_engine.rule_loader.loader: [error] FILE_NOT_FOUND (rules/missing.rules): rule file not found: rules/missing.rules
+INFO core_engine.rule_loader.loader: rule loader finished: 1/2 file(s) loaded, 0 disabled, 1 failed, 3 candidate(s) emitted, 0 disabled
+statistics:
+  files_configured: 2
+  files_loaded: 1
+  files_disabled: 0
+  files_failed: 1
+  files_skipped_extension: 0
+  files_empty: 0
+  lines_read: 9
+  lines_skipped_blank: 2
+  lines_skipped_comment: 4
+  rules_read: 3
+  rules_disabled: 0
+  rules_emitted: 3
+  rules_forwarded: 0
+  rules_failed: 0
+  warnings: 0
+  errors: 1
+exit code: 1

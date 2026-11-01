@@ -1,0 +1,11 @@
+$ .venv/bin/python -m unittest tests.test_rule_loader.RuleFileErrorTestCase.test_wrong_extension_is_skipped_by_strict_policy tests.test_rule_loader.RuleFileErrorTestCase.test_wrong_extension_is_loaded_by_lenient_policy -v
+test_wrong_extension_is_skipped_by_strict_policy (tests.test_rule_loader.RuleFileErrorTestCase.test_wrong_extension_is_skipped_by_strict_policy) ... [warning] EXTENSION_NOT_ALLOWED (wrong_extension.txt): rule file does not use an allowed extension ['.rules']: wrong_extension.txt (extension_policy=strict); skipping file (strict policy)
+ok
+test_wrong_extension_is_loaded_by_lenient_policy (tests.test_rule_loader.RuleFileErrorTestCase.test_wrong_extension_is_loaded_by_lenient_policy) ... [warning] EXTENSION_NOT_ALLOWED (wrong_extension.txt): rule file does not use an allowed extension ['.rules']: wrong_extension.txt (extension_policy=lenient); loading it anyway (lenient policy)
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+OK
+exit code: 0

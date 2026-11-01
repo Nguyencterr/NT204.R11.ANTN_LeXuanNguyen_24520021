@@ -1,0 +1,3 @@
+$ .venv/bin/python -m core_engine.rule_loader --config /tmp/opencode/broken_loader.json
+error: invalid JSON in rule loader configuration /tmp/opencode/broken_loader.json: line 1 column 39: Illegal trailing comma before end of object
+exit code: 2

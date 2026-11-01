@@ -1,0 +1,11 @@
+$ .venv/bin/python -m unittest tests.test_rule_loader.IsolationRegressionTestCase -v
+test_broken_file_and_handler_error_do_not_block_other_rules (tests.test_rule_loader.IsolationRegressionTestCase.test_broken_file_and_handler_error_do_not_block_other_rules) ... [error] FILE_NOT_FOUND (missing.rules): rule file not found: missing.rules
+[error] FILE_ENCODING_ERROR (invalid_utf8.rules): cannot decode rule file invalid_utf8.rules as utf-8 (encoding_errors=strict): invalid start byte at byte 125 of the failing line; file skipped
+[error] CANDIDATE_HANDLER_ERROR (web.rules:4): candidate handler failed for web.rules:4: ValueError: parser double failed
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+OK
+exit code: 0

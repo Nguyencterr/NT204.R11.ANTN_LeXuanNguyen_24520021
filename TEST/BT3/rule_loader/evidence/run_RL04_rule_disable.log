@@ -1,0 +1,10 @@
+$ .venv/bin/python -m unittest tests.test_rule_loader.PerRuleEnableTestCase -v
+test_config_file_controls_files_and_rules (tests.test_rule_loader.PerRuleEnableTestCase.test_config_file_controls_files_and_rules) ... ok
+test_explicit_enable_keeps_the_rule (tests.test_rule_loader.PerRuleEnableTestCase.test_explicit_enable_keeps_the_rule) ... ok
+test_single_rule_can_be_disabled (tests.test_rule_loader.PerRuleEnableTestCase.test_single_rule_can_be_disabled) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+OK
+exit code: 0

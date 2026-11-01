@@ -1,0 +1,3 @@
+$ .venv/bin/python -m core_engine.rule_loader --config rules/does_not_exist.json
+error: rule loader configuration file not found: rules/does_not_exist.json
+exit code: 2

@@ -1,0 +1,9 @@
+$ .venv/bin/python -m unittest tests.test_rule_loader.CandidateHandlerTestCase -v
+test_handler_error_is_isolated (tests.test_rule_loader.CandidateHandlerTestCase.test_handler_error_is_isolated) ... [error] CANDIDATE_HANDLER_ERROR (web.rules:6): candidate handler failed for web.rules:6: RuntimeError: parser double failed
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+OK
+exit code: 0

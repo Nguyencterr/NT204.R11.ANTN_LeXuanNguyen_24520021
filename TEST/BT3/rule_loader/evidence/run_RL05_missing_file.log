@@ -1,0 +1,13 @@
+$ .venv/bin/python -m unittest tests.test_rule_loader.RuleFileErrorTestCase.test_missing_file_warns_and_continues tests.test_rule_loader.RuleFileErrorTestCase.test_directory_path_is_not_a_regular_file tests.test_rule_loader.RuleFileErrorTestCase.test_unreadable_file_is_reported -v
+test_missing_file_warns_and_continues (tests.test_rule_loader.RuleFileErrorTestCase.test_missing_file_warns_and_continues) ... [error] FILE_NOT_FOUND (missing.rules): rule file not found: missing.rules
+ok
+test_directory_path_is_not_a_regular_file (tests.test_rule_loader.RuleFileErrorTestCase.test_directory_path_is_not_a_regular_file) ... [error] FILE_NOT_REGULAR (folder.rules): rule file path is a directory, not a regular file: folder.rules
+ok
+test_unreadable_file_is_reported (tests.test_rule_loader.RuleFileErrorTestCase.test_unreadable_file_is_reported) ... [error] FILE_UNREADABLE (locked.rules): permission denied reading rule file: locked.rules
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+OK
+exit code: 0

@@ -1,0 +1,28 @@
+$ .venv/bin/python -m core_engine.rule_loader --config rules/rule_loader.json --stats --list
+INFO core_engine.rule_loader.loader: [info] RULE_DISABLED (local.rules:7): rule disabled by rule_overrides
+INFO core_engine.rule_loader.loader: [info] FILE_DISABLED (dos.rules): rule file disabled by configuration: dos.rules
+INFO core_engine.rule_loader.loader: rule loader finished: 2/3 file(s) loaded, 1 disabled, 0 failed, 5 candidate(s) emitted, 1 disabled
+candidates (5):
+  web.rules:5	alert tcp $HOME_NET any -> $EXTERNAL_NET 80 (msg:"Web GET index"; content:"GET /index.html"; sid:9000010; rev:1;)
+  web.rules:7	alert tcp $HOME_NET any -> $EXTERNAL_NET 80 (msg:"Web fragment request"; content:"GET /#fragment"; sid:9000011; rev:1;)
+  web.rules:9	alert tcp $EXTERNAL_NET 80 -> $HOME_NET any (msg:"Web 200 OK"; content:"HTTP/1.1 200"; sid:9000012; rev:1;)
+  local.rules:4	alert udp any any -> any 53 (msg:"Local DNS query"; content:"|01 00|"; sid:9000001; rev:1;)
+  local.rules:8	alert tcp any any -> any 445 (msg:"Local SMB access"; sid:9000003; rev:1;)
+statistics:
+  files_configured: 3
+  files_loaded: 2
+  files_disabled: 1
+  files_failed: 0
+  files_skipped_extension: 0
+  files_empty: 0
+  lines_read: 17
+  lines_skipped_blank: 4
+  lines_skipped_comment: 7
+  rules_read: 6
+  rules_disabled: 1
+  rules_emitted: 5
+  rules_forwarded: 0
+  rules_failed: 0
+  warnings: 0
+  errors: 0
+exit code: 0

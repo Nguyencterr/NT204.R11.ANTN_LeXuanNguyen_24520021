@@ -1,0 +1,9 @@
+$ .venv/bin/python -m unittest tests.test_rule_loader.EmptyFileTestCase -v
+test_comment_only_file_returns_no_candidate (tests.test_rule_loader.EmptyFileTestCase.test_comment_only_file_returns_no_candidate) ... ok
+test_empty_file_returns_no_candidate (tests.test_rule_loader.EmptyFileTestCase.test_empty_file_returns_no_candidate) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+OK
+exit code: 0

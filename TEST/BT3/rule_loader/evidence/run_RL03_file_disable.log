@@ -1,0 +1,9 @@
+$ .venv/bin/python -m unittest tests.test_rule_loader.RuleFileEnableTestCase -v
+test_disabled_file_produces_no_candidate (tests.test_rule_loader.RuleFileEnableTestCase.test_disabled_file_produces_no_candidate) ... ok
+test_enabled_file_is_the_documented_default (tests.test_rule_loader.RuleFileEnableTestCase.test_enabled_file_is_the_documented_default) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+OK
+exit code: 0

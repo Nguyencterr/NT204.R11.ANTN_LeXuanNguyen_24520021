@@ -1,0 +1,19 @@
+$ .venv/bin/python -m unittest tests.test_rule_loader.RuleLoaderConfigTestCase -v
+test_bad_entry_does_not_disable_other_files (tests.test_rule_loader.RuleLoaderConfigTestCase.test_bad_entry_does_not_disable_other_files) ... [warning] INVALID_CONFIG (-): rule_files[0]: 'path' must be a non-empty string, got NoneType
+ok
+test_bad_override_value_is_reported (tests.test_rule_loader.RuleLoaderConfigTestCase.test_bad_override_value_is_reported) ... [warning] INVALID_CONFIG (-): rule_overrides['local.rules:6']: value must be a boolean or {"enabled": bool}, got str
+ok
+test_invalid_bytes_fail_the_file_without_leaking_candidates (tests.test_rule_loader.RuleLoaderConfigTestCase.test_invalid_bytes_fail_the_file_without_leaking_candidates) ... [error] FILE_ENCODING_ERROR (invalid_utf8.rules): cannot decode rule file invalid_utf8.rules as utf-8 (encoding_errors=strict): invalid start byte at byte 125 of the failing line; file skipped
+ok
+test_invalid_json_config_raises_with_reason (tests.test_rule_loader.RuleLoaderConfigTestCase.test_invalid_json_config_raises_with_reason) ... ok
+test_missing_config_file_raises_with_path (tests.test_rule_loader.RuleLoaderConfigTestCase.test_missing_config_file_raises_with_path) ... ok
+test_replace_policy_is_explicit_and_lossy (tests.test_rule_loader.RuleLoaderConfigTestCase.test_replace_policy_is_explicit_and_lossy) ... ok
+test_structurally_invalid_config_raises (tests.test_rule_loader.RuleLoaderConfigTestCase.test_structurally_invalid_config_raises) ... ok
+test_unknown_config_key_is_reported (tests.test_rule_loader.RuleLoaderConfigTestCase.test_unknown_config_key_is_reported) ... [warning] INVALID_CONFIG (-): unknown configuration key 'rule_file' (expected 'rule_files' and/or 'rule_overrides')
+ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.002s
+
+OK
+exit code: 0

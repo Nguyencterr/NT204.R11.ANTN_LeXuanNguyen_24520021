@@ -1,0 +1,23 @@
+$ .venv/bin/python -m core_engine.rule_loader --config rules/rule_loader.json --output TEST/BT3/rule_loader/evidence/candidates.jsonl
+INFO core_engine.rule_loader.loader: [info] RULE_DISABLED (local.rules:7): rule disabled by rule_overrides
+INFO core_engine.rule_loader.loader: [info] FILE_DISABLED (dos.rules): rule file disabled by configuration: dos.rules
+INFO core_engine.rule_loader.loader: rule loader finished: 2/3 file(s) loaded, 1 disabled, 0 failed, 5 candidate(s) emitted, 1 disabled
+candidates written: TEST/BT3/rule_loader/evidence/candidates.jsonl (5 line(s))
+statistics:
+  files_configured: 3
+  files_loaded: 2
+  files_disabled: 1
+  files_failed: 0
+  files_skipped_extension: 0
+  files_empty: 0
+  lines_read: 17
+  lines_skipped_blank: 4
+  lines_skipped_comment: 7
+  rules_read: 6
+  rules_disabled: 1
+  rules_emitted: 5
+  rules_forwarded: 0
+  rules_failed: 0
+  warnings: 0
+  errors: 0
+exit code: 0

@@ -1,0 +1,59 @@
+$ .venv/bin/python -m unittest tests.test_rule_loader -v
+test_handler_error_is_isolated (tests.test_rule_loader.CandidateHandlerTestCase.test_handler_error_is_isolated) ... [error] CANDIDATE_HANDLER_ERROR (web.rules:6): candidate handler failed for web.rules:6: RuntimeError: parser double failed
+ok
+test_comment_with_leading_whitespace_is_skipped (tests.test_rule_loader.CommentDetectionTestCase.test_comment_with_leading_whitespace_is_skipped) ... ok
+test_hash_inside_rule_body_is_preserved (tests.test_rule_loader.CommentDetectionTestCase.test_hash_inside_rule_body_is_preserved) ... ok
+test_comment_only_file_returns_no_candidate (tests.test_rule_loader.EmptyFileTestCase.test_comment_only_file_returns_no_candidate) ... ok
+test_empty_file_returns_no_candidate (tests.test_rule_loader.EmptyFileTestCase.test_empty_file_returns_no_candidate) ... ok
+test_broken_file_and_handler_error_do_not_block_other_rules (tests.test_rule_loader.IsolationRegressionTestCase.test_broken_file_and_handler_error_do_not_block_other_rules) ... [error] FILE_NOT_FOUND (missing.rules): rule file not found: missing.rules
+[error] FILE_ENCODING_ERROR (invalid_utf8.rules): cannot decode rule file invalid_utf8.rules as utf-8 (encoding_errors=strict): invalid start byte at byte 125 of the failing line; file skipped
+[error] CANDIDATE_HANDLER_ERROR (web.rules:4): candidate handler failed for web.rules:4: ValueError: parser double failed
+ok
+test_file_order_follows_configuration (tests.test_rule_loader.MultiFileTestCase.test_file_order_follows_configuration) ... ok
+test_files_and_rules_keep_configured_order (tests.test_rule_loader.MultiFileTestCase.test_files_and_rules_keep_configured_order) ... ok
+test_config_file_controls_files_and_rules (tests.test_rule_loader.PerRuleEnableTestCase.test_config_file_controls_files_and_rules) ... ok
+test_explicit_enable_keeps_the_rule (tests.test_rule_loader.PerRuleEnableTestCase.test_explicit_enable_keeps_the_rule) ... ok
+test_single_rule_can_be_disabled (tests.test_rule_loader.PerRuleEnableTestCase.test_single_rule_can_be_disabled) ... ok
+test_disabled_file_produces_no_candidate (tests.test_rule_loader.RuleFileEnableTestCase.test_disabled_file_produces_no_candidate) ... ok
+test_enabled_file_is_the_documented_default (tests.test_rule_loader.RuleFileEnableTestCase.test_enabled_file_is_the_documented_default) ... ok
+test_directory_path_is_not_a_regular_file (tests.test_rule_loader.RuleFileErrorTestCase.test_directory_path_is_not_a_regular_file) ... [error] FILE_NOT_REGULAR (folder.rules): rule file path is a directory, not a regular file: folder.rules
+ok
+test_missing_file_warns_and_continues (tests.test_rule_loader.RuleFileErrorTestCase.test_missing_file_warns_and_continues) ... [error] FILE_NOT_FOUND (missing.rules): rule file not found: missing.rules
+ok
+test_unreadable_file_is_reported (tests.test_rule_loader.RuleFileErrorTestCase.test_unreadable_file_is_reported) ... [error] FILE_UNREADABLE (locked.rules): permission denied reading rule file: locked.rules
+ok
+test_wrong_extension_is_loaded_by_lenient_policy (tests.test_rule_loader.RuleFileErrorTestCase.test_wrong_extension_is_loaded_by_lenient_policy) ... [warning] EXTENSION_NOT_ALLOWED (wrong_extension.txt): rule file does not use an allowed extension ['.rules']: wrong_extension.txt (extension_policy=lenient); loading it anyway (lenient policy)
+ok
+test_wrong_extension_is_skipped_by_strict_policy (tests.test_rule_loader.RuleFileErrorTestCase.test_wrong_extension_is_skipped_by_strict_policy) ... [warning] EXTENSION_NOT_ALLOWED (wrong_extension.txt): rule file does not use an allowed extension ['.rules']: wrong_extension.txt (extension_policy=strict); skipping file (strict policy)
+ok
+test_comments_and_blank_lines_are_skipped (tests.test_rule_loader.RuleFileParsingTestCase.test_comments_and_blank_lines_are_skipped) ... ok
+test_raw_text_is_not_rewritten (tests.test_rule_loader.RuleFileParsingTestCase.test_raw_text_is_not_rewritten) ... ok
+test_result_is_json_serializable (tests.test_rule_loader.RuleFileParsingTestCase.test_result_is_json_serializable) ... ok
+test_bad_entry_does_not_disable_other_files (tests.test_rule_loader.RuleLoaderConfigTestCase.test_bad_entry_does_not_disable_other_files) ... [warning] INVALID_CONFIG (-): rule_files[0]: 'path' must be a non-empty string, got NoneType
+ok
+test_bad_override_value_is_reported (tests.test_rule_loader.RuleLoaderConfigTestCase.test_bad_override_value_is_reported) ... [warning] INVALID_CONFIG (-): rule_overrides['local.rules:6']: value must be a boolean or {"enabled": bool}, got str
+ok
+test_invalid_bytes_fail_the_file_without_leaking_candidates (tests.test_rule_loader.RuleLoaderConfigTestCase.test_invalid_bytes_fail_the_file_without_leaking_candidates) ... [error] FILE_ENCODING_ERROR (invalid_utf8.rules): cannot decode rule file invalid_utf8.rules as utf-8 (encoding_errors=strict): invalid start byte at byte 125 of the failing line; file skipped
+ok
+test_invalid_json_config_raises_with_reason (tests.test_rule_loader.RuleLoaderConfigTestCase.test_invalid_json_config_raises_with_reason) ... ok
+test_missing_config_file_raises_with_path (tests.test_rule_loader.RuleLoaderConfigTestCase.test_missing_config_file_raises_with_path) ... ok
+test_replace_policy_is_explicit_and_lossy (tests.test_rule_loader.RuleLoaderConfigTestCase.test_replace_policy_is_explicit_and_lossy) ... ok
+test_structurally_invalid_config_raises (tests.test_rule_loader.RuleLoaderConfigTestCase.test_structurally_invalid_config_raises) ... ok
+test_unknown_config_key_is_reported (tests.test_rule_loader.RuleLoaderConfigTestCase.test_unknown_config_key_is_reported) ... [warning] INVALID_CONFIG (-): unknown configuration key 'rule_file' (expected 'rule_files' and/or 'rule_overrides')
+ok
+test_override_in_disabled_file_does_not_load_the_file (tests.test_rule_loader.RuleOverrideTestCase.test_override_in_disabled_file_does_not_load_the_file) ... [warning] UNKNOWN_RULE_OVERRIDE (local.rules:6): rule override does not match any loaded rule: local.rules:6
+ok
+test_selector_path_variants_are_normalized (tests.test_rule_loader.RuleOverrideTestCase.test_selector_path_variants_are_normalized) ... ok
+test_unknown_selector_warns_and_keeps_other_rules (tests.test_rule_loader.RuleOverrideTestCase.test_unknown_selector_warns_and_keeps_other_rules) ... [warning] UNKNOWN_RULE_OVERRIDE (web.rules:999): rule override does not match any loaded rule: web.rules:999
+ok
+test_absolute_path_under_base_dir_gets_relative_ref (tests.test_rule_loader.RulePathTestCase.test_absolute_path_under_base_dir_gets_relative_ref) ... ok
+test_nested_relative_path (tests.test_rule_loader.RulePathTestCase.test_nested_relative_path) ... ok
+test_relative_path_resolves_against_base_dir (tests.test_rule_loader.RulePathTestCase.test_relative_path_resolves_against_base_dir) ... ok
+test_rule_ref_does_not_depend_on_working_directory (tests.test_rule_loader.RulePathTestCase.test_rule_ref_does_not_depend_on_working_directory) ... ok
+test_repository_config_loads (tests.test_rule_loader.ShippedConfigTestCase.test_repository_config_loads) ... ok
+
+----------------------------------------------------------------------
+Ran 37 tests in 0.006s
+
+OK
+exit code: 0
