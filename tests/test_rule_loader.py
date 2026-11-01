@@ -208,6 +208,128 @@ class MultiFileTestCase(unittest.TestCase):
         self.assertEqual(result.rules[3].file_index, 1)
 
 
+class RuleFileEnableTestCase(unittest.TestCase):
+    """RL03 - a disabled file is never read."""
+
+    def test_disabled_file_produces_no_candidate(self):
+
+        result = load(
+            [
+                {"path": "web.rules", "enabled": True},
+                {"path": "local.rules", "enabled": False},
+            ]
+        )
+
+        self.assertEqual(
+            refs(result),
+            ["web.rules:4", "web.rules:6", "web.rules:8"],
+        )
+        self.assertEqual(result.statistics.files_configured, 2)
+        self.assertEqual(result.statistics.files_disabled, 1)
+        self.assertEqual(result.statistics.files_loaded, 1)
+
+        summary = result.file_results[1]
+
+        self.assertEqual(summary.source_file, "local.rules")
+        self.assertFalse(summary.enabled)
+        self.assertFalse(summary.loaded)
+        self.assertEqual(summary.skipped_reason, "disabled")
+        self.assertEqual(summary.rules_read, 0)
+
+        warning = warnings_for(result, CODE_FILE_DISABLED)[0]
+
+        self.assertEqual(warning.source_file, "local.rules")
+        self.assertEqual(warning.severity, "info")
+
+    def test_enabled_file_is_the_documented_default(self):
+
+        result = load(["web.rules"])
+
+        self.assertEqual(result.statistics.files_disabled, 0)
+        self.assertTrue(result.file_results[0].enabled)
+
+
+class PerRuleEnableTestCase(unittest.TestCase):
+    """RL04 - one rule can be disabled without touching the others."""
+
+    def test_single_rule_can_be_disabled(self):
+
+        result = load(
+            ["local.rules"],
+            overrides={"local.rules:6": False},
+        )
+
+        self.assertEqual(
+            refs(result),
+            ["local.rules:4", "local.rules:7"],
+        )
+        self.assertEqual(result.statistics.rules_read, 3)
+        self.assertEqual(result.statistics.rules_disabled, 1)
+        self.assertEqual(result.statistics.rules_emitted, 2)
+
+        self.assertEqual(
+            [rule.rule_ref for rule in result.disabled_rules],
+            ["local.rules:6"],
+        )
+        self.assertFalse(result.disabled_rules[0].enabled)
+
+        warning = warnings_for(result, CODE_RULE_DISABLED)[0]
+
+        self.assertEqual(warning.rule_ref, "local.rules:6")
+        self.assertEqual(warning.line_number, 6)
+        self.assertEqual(warning.severity, "info")
+
+    def test_explicit_enable_keeps_the_rule(self):
+
+        result = load(
+            ["local.rules"],
+            overrides={"local.rules:6": True},
+        )
+
+        self.assertEqual(len(result.rules), 3)
+        self.assertEqual(result.statistics.rules_disabled, 0)
+        self.assertEqual(
+            warnings_for(result, CODE_UNKNOWN_RULE_OVERRIDE),
+            [],
+        )
+
+    def test_config_file_controls_files_and_rules(self):
+
+        with tempfile.TemporaryDirectory() as tmp:
+
+            config_path = Path(tmp) / "loader.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "rule_files": [
+                            {"path": "web.rules"},
+                            {"path": "local.rules", "enabled": False},
+                        ],
+                        "rule_overrides": {
+                            "web.rules:6": {"enabled": False},
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            config = RuleLoaderConfig.from_json_file(
+                config_path,
+                base_dir=FIXTURES,
+            )
+
+        self.assertEqual(config.problems, [])
+
+        result = RuleLoader(config).load()
+
+        self.assertEqual(
+            refs(result),
+            ["web.rules:4", "web.rules:8"],
+        )
+        self.assertEqual(result.statistics.files_disabled, 1)
+        self.assertEqual(result.statistics.rules_disabled, 1)
+
+
 class EmptyFileTestCase(unittest.TestCase):
     """RL08 - empty and comment-only files are not errors."""
 
@@ -336,6 +458,153 @@ class RulePathTestCase(unittest.TestCase):
         result = load(["nested/deep.rules"])
 
         self.assertEqual(refs(result), ["nested/deep.rules:2"])
+
+
+class RuleOverrideTestCase(unittest.TestCase):
+    """RL12 - selectors that match nothing are reported."""
+
+    def test_unknown_selector_warns_and_keeps_other_rules(self):
+
+        result = load(
+            ["web.rules"],
+            overrides={"web.rules:999": False},
+        )
+
+        self.assertEqual(len(result.rules), 3)
+        self.assertEqual(result.statistics.rules_disabled, 0)
+
+        warning = warnings_for(result, CODE_UNKNOWN_RULE_OVERRIDE)[0]
+
+        self.assertEqual(warning.rule_ref, "web.rules:999")
+        self.assertIn("web.rules:999", warning.message)
+
+    def test_override_in_disabled_file_does_not_load_the_file(self):
+
+        result = load(
+            [{"path": "local.rules", "enabled": False}],
+            overrides={"local.rules:6": True},
+        )
+
+        self.assertEqual(result.rules, [])
+        self.assertEqual(result.statistics.files_disabled, 1)
+        self.assertIn(CODE_UNKNOWN_RULE_OVERRIDE, codes(result))
+
+    def test_selector_path_variants_are_normalized(self):
+
+        result = load(
+            ["local.rules"],
+            overrides={"./local.rules:6": False},
+        )
+
+        self.assertEqual(
+            refs(result),
+            ["local.rules:4", "local.rules:7"],
+        )
+        self.assertEqual(result.statistics.rules_disabled, 1)
+
+
+class RuleLoaderConfigTestCase(unittest.TestCase):
+    """RL13 - bad configuration is reported, not silently fatal."""
+
+    def test_bad_entry_does_not_disable_other_files(self):
+
+        result = load([{"enabled": False}, "web.rules"])
+
+        self.assertEqual(len(result.rules), 3)
+        self.assertEqual(result.statistics.files_configured, 1)
+        self.assertIn(CODE_INVALID_CONFIG, codes(result))
+
+    def test_bad_override_value_is_reported(self):
+
+        result = load(
+            ["local.rules"],
+            overrides={"local.rules:6": "no"},
+        )
+
+        self.assertEqual(len(result.rules), 3)
+        self.assertIn(CODE_INVALID_CONFIG, codes(result))
+
+    def test_unknown_config_key_is_reported(self):
+
+        config = RuleLoaderConfig.from_mapping(
+            {"rule_files": ["web.rules"], "rule_file": []},
+            base_dir=FIXTURES,
+        )
+
+        result = RuleLoader(config).load()
+
+        self.assertEqual(len(result.rules), 3)
+        self.assertIn(CODE_INVALID_CONFIG, codes(result))
+
+    def test_structurally_invalid_config_raises(self):
+
+        with self.assertRaises(RuleLoaderConfigError):
+
+            RuleLoaderConfig.from_mapping(["web.rules"])
+
+        with self.assertRaises(RuleLoaderConfigError):
+
+            RuleLoaderConfig.from_mapping({"rule_files": "web.rules"})
+
+        with self.assertRaises(RuleLoaderConfigError):
+
+            RuleLoaderConfig.from_mapping(
+                {"rule_files": [], "rule_overrides": ["x"]}
+            )
+
+    def test_invalid_json_config_raises_with_reason(self):
+
+        with tempfile.TemporaryDirectory() as tmp:
+
+            config_path = Path(tmp) / "broken.json"
+            config_path.write_text("{not json", encoding="utf-8")
+
+            with self.assertRaises(RuleLoaderConfigError) as context:
+
+                RuleLoaderConfig.from_json_file(config_path)
+
+        message = str(context.exception)
+
+        self.assertIn("invalid JSON", message)
+        self.assertIn(str(config_path), message)
+
+    def test_missing_config_file_raises_with_path(self):
+
+        with self.assertRaises(RuleLoaderConfigError) as context:
+
+            RuleLoaderConfig.from_json_file(
+                FIXTURES / "no_such_config.json"
+            )
+
+        self.assertIn("not found", str(context.exception))
+
+    def test_invalid_bytes_fail_the_file_without_leaking_candidates(self):
+
+        result = load(["invalid_utf8.rules", "web.rules"])
+
+        self.assertEqual(len(result.rules), 3)
+        self.assertEqual(result.statistics.files_failed, 1)
+        self.assertFalse(
+            any(
+                rule.source_file == "invalid_utf8.rules"
+                for rule in result.rules
+            )
+        )
+
+        warning = warnings_for(result, CODE_FILE_ENCODING_ERROR)[0]
+
+        self.assertIn("invalid_utf8.rules", warning.message)
+        self.assertIn("utf-8", warning.message)
+
+    def test_replace_policy_is_explicit_and_lossy(self):
+
+        result = load(
+            ["invalid_utf8.rules"],
+            encoding_errors="replace",
+        )
+
+        self.assertEqual(len(result.rules), 1)
+        self.assertIn("\ufffd", result.rules[0].raw_text)
 
 
 class ShippedConfigTestCase(unittest.TestCase):
