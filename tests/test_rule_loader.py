@@ -330,6 +330,131 @@ class PerRuleEnableTestCase(unittest.TestCase):
         self.assertEqual(result.statistics.rules_disabled, 1)
 
 
+class RuleFileErrorTestCase(unittest.TestCase):
+    """RL05/RL06 - broken files are reported, never fatal."""
+
+    def test_missing_file_warns_and_continues(self):
+
+        result = load(["missing.rules", "web.rules"])
+
+        self.assertEqual(len(result.rules), 3)
+        self.assertEqual(result.statistics.files_failed, 1)
+        self.assertEqual(result.statistics.files_loaded, 1)
+        self.assertTrue(result.has_errors)
+
+        warning = warnings_for(result, CODE_FILE_NOT_FOUND)[0]
+
+        self.assertEqual(warning.severity, SEVERITY_ERROR)
+        self.assertEqual(warning.source_file, "missing.rules")
+        self.assertIn("missing.rules", warning.message)
+
+    def test_directory_path_is_not_a_regular_file(self):
+
+        with tempfile.TemporaryDirectory() as tmp:
+
+            directory = Path(tmp) / "folder.rules"
+            directory.mkdir()
+
+            result = load(["folder.rules"], base_dir=tmp)
+
+        self.assertEqual(result.rules, [])
+        self.assertIn(CODE_FILE_NOT_REGULAR, codes(result))
+        self.assertEqual(result.statistics.files_failed, 1)
+
+    def test_unreadable_file_is_reported(self):
+
+        with tempfile.TemporaryDirectory() as tmp:
+
+            locked = Path(tmp) / "locked.rules"
+            locked.write_text(
+                "alert tcp any any -> any 80 (msg:\"locked\"; sid:1;)\n",
+                encoding="utf-8",
+            )
+
+            locked.chmod(0o000)
+
+            try:
+
+                if os.access(locked, os.R_OK):
+
+                    self.skipTest(
+                        "cannot make a file unreadable in this environment "
+                        "(running as root?)"
+                    )
+
+                result = load(["locked.rules"], base_dir=tmp)
+
+            finally:
+
+                locked.chmod(0o644)
+
+        self.assertIn(CODE_FILE_UNREADABLE, codes(result))
+        self.assertEqual(result.statistics.files_failed, 1)
+
+    def test_wrong_extension_is_skipped_by_strict_policy(self):
+
+        result = load(["wrong_extension.txt"])
+
+        self.assertEqual(result.rules, [])
+        self.assertEqual(result.statistics.files_skipped_extension, 1)
+        self.assertEqual(result.statistics.files_loaded, 0)
+
+        warning = warnings_for(result, CODE_EXTENSION_NOT_ALLOWED)[0]
+
+        self.assertIn("wrong_extension.txt", warning.message)
+        self.assertIn("strict", warning.message)
+
+    def test_wrong_extension_is_loaded_by_lenient_policy(self):
+
+        result = load(
+            ["wrong_extension.txt"],
+            extension_policy="lenient",
+        )
+
+        self.assertEqual(refs(result), ["wrong_extension.txt:2"])
+        self.assertEqual(
+            warnings_for(result, CODE_EXTENSION_NOT_ALLOWED)[0].severity,
+            "warning",
+        )
+
+
+class CandidateHandlerTestCase(unittest.TestCase):
+    """RL07 - a failing candidate handler only fails that candidate."""
+
+    def test_handler_error_is_isolated(self):
+
+        seen: list[str] = []
+
+        def handler(candidate):
+
+            seen.append(candidate.rule_ref)
+
+            if candidate.rule_ref == "web.rules:6":
+
+                raise RuntimeError("parser double failed")
+
+        result = load(["web.rules"], handler=handler)
+
+        self.assertEqual(
+            seen,
+            ["web.rules:4", "web.rules:6", "web.rules:8"],
+        )
+        self.assertEqual(result.statistics.rules_forwarded, 2)
+        self.assertEqual(result.statistics.rules_failed, 1)
+
+        warning = warnings_for(result, CODE_CANDIDATE_HANDLER_ERROR)[0]
+
+        self.assertEqual(warning.severity, SEVERITY_ERROR)
+        self.assertEqual(warning.rule_ref, "web.rules:6")
+        self.assertEqual(warning.source_file, "web.rules")
+        self.assertEqual(warning.line_number, 6)
+        self.assertIn("RuntimeError", warning.message)
+        self.assertIn("parser double failed", warning.message)
+
+        # A handler failure must not remove the loaded candidate.
+        self.assertEqual(len(result.rules), 3)
+
+
 class EmptyFileTestCase(unittest.TestCase):
     """RL08 - empty and comment-only files are not errors."""
 
@@ -605,6 +730,55 @@ class RuleLoaderConfigTestCase(unittest.TestCase):
 
         self.assertEqual(len(result.rules), 1)
         self.assertIn("\ufffd", result.rules[0].raw_text)
+
+
+class IsolationRegressionTestCase(unittest.TestCase):
+    """RL14 - broken files and broken candidates never stop the load."""
+
+    def test_broken_file_and_handler_error_do_not_block_other_rules(self):
+
+        forwarded: list[str] = []
+
+        def handler(candidate):
+
+            forwarded.append(candidate.rule_ref)
+
+            if candidate.rule_ref == "web.rules:4":
+
+                raise ValueError("parser double failed")
+
+        result = load(
+            [
+                "missing.rules",
+                "invalid_utf8.rules",
+                "web.rules",
+                "local.rules",
+            ],
+            overrides={"local.rules:6": False},
+            handler=handler,
+        )
+
+        expected = [
+            "web.rules:4",
+            "web.rules:6",
+            "web.rules:8",
+            "local.rules:4",
+            "local.rules:7",
+        ]
+
+        self.assertEqual(refs(result), expected)
+        self.assertEqual(forwarded, expected)
+
+        self.assertEqual(result.statistics.files_configured, 4)
+        self.assertEqual(result.statistics.files_loaded, 2)
+        self.assertEqual(result.statistics.files_failed, 2)
+        self.assertEqual(result.statistics.rules_read, 6)
+        self.assertEqual(result.statistics.rules_disabled, 1)
+        self.assertEqual(result.statistics.rules_emitted, 5)
+        self.assertEqual(result.statistics.rules_forwarded, 4)
+        self.assertEqual(result.statistics.rules_failed, 1)
+        self.assertEqual(result.statistics.errors, 3)
+        self.assertTrue(result.has_errors)
 
 
 class ShippedConfigTestCase(unittest.TestCase):
