@@ -1,0 +1,8 @@
+# Local rules - Assignment 3 Rule Loader example input.
+# The loader only reads lines; it does not validate Snort syntax (section 4.2).
+
+alert udp any any -> any 53 (msg:"Local DNS query"; content:"|01 00|"; sid:9000001; rev:1;)
+
+# The rule below is disabled through rules/rule_loader.json -> rule_overrides.
+alert tcp any any -> any 23 (msg:"Local telnet attempt"; sid:9000002; rev:1;)
+alert tcp any any -> any 445 (msg:"Local SMB access"; sid:9000003; rev:1;)

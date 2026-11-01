@@ -1,0 +1,9 @@
+# Web rules - Assignment 3 Rule Loader example input.
+# Comment lines (including indented ones) are skipped by the loader.
+# The loader does not validate Snort syntax; section 4.2 does that.
+
+alert tcp $HOME_NET any -> $EXTERNAL_NET 80 (msg:"Web GET index"; content:"GET /index.html"; sid:9000010; rev:1;)
+    # This indented comment is still a comment (loader requirement 4.1 item 6).
+alert tcp $HOME_NET any -> $EXTERNAL_NET 80 (msg:"Web fragment request"; content:"GET /#fragment"; sid:9000011; rev:1;)
+
+alert tcp $EXTERNAL_NET 80 -> $HOME_NET any (msg:"Web 200 OK"; content:"HTTP/1.1 200"; sid:9000012; rev:1;)

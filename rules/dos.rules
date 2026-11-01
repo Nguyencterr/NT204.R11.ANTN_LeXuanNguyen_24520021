@@ -1,0 +1,5 @@
+# Denial-of-service rules - disabled in rules/rule_loader.json.
+# A disabled file is never read, so its candidates never reach section 4.2.
+
+alert tcp any any -> $HOME_NET 80 (msg:"Possible SYN flood"; flags:S; threshold:type both, track by_src, count 100, seconds 1; sid:9000020; rev:1;)
+alert udp any any -> $HOME_NET 53 (msg:"DNS amplification"; dsize:>512; sid:9000021; rev:1;)

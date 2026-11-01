@@ -1,0 +1,10 @@
+{
+  "rule_files": [
+    {"path": "web.rules", "enabled": true},
+    {"path": "local.rules", "enabled": true},
+    {"path": "dos.rules", "enabled": false}
+  ],
+  "rule_overrides": {
+    "local.rules:7": {"enabled": false}
+  }
+}
