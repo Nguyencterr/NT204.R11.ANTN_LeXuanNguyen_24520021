@@ -1,4 +1,4 @@
-# NT204.R11.ANTN – Packet Capture & Parser (Assignment 1 + Assignment 2)
+# NT204.R11.ANTN – Packet Capture & Parser + IDS Core Engine (Assignment 1 + 2 + 3)
 
 ## 1. Tổng quan
 
@@ -11,6 +11,7 @@ Chương trình hỗ trợ:
 * Phân tích IPv4, TCP và UDP.
 * Nhận diện HTTP, DNS, SMTP và UNKNOWN.
 * **Bài tập 2:** Decoder, Preprocessor và Flow/Connection Tracker cho IDS.
+* **Bài tập 3 (mục 4.1):** Rule Loader của Core Engine — nạp rule từ file `.rules`.
 * Xuất kết quả dưới dạng JSONL (event + flow).
 
 Môi trường thực hiện:
@@ -63,6 +64,40 @@ Future Feature Extractor / Detection Engine
 
 PCAP và Live Capture sử dụng chung một pipeline (`pipeline/pipeline.py`) với đúng thứ tự `decoder → preprocessor → tracker`.
 
+### 2.3 Pipeline Bài tập 3 (mới đến mục 4.1)
+
+```text
+rules/*.rules
+     │
+┌────▼──────────────┐
+│ 4.1 Rule Loader   │  ← đã triển khai (core_engine/rule_loader/)
+└────┬──────────────┘
+     │ RuleSourceEntry (raw_text + source_file + line_number + rule_ref)
+┌────▼───────────────────┐
+│ 4.2 Parser & Validator │  ← chưa triển khai
+└────┬───────────────────┘
+     │
+┌────▼──────────────┐
+│ 4.3 Repository /   │  ← chưa triển khai
+│     Indexer        │
+└────┬───────────────┘
+     │
+┌────▼──────────────┐     ┌─────────────────┐
+│ 4.4 Matching      │◄────│ Normalized event │ (Bài tập 2)
+└────┬──────────────┘     └─────────────────┘
+     │
+┌────▼──────────────┐
+│ 4.5 Evaluation    │  ← chưa triển khai
+└────┬──────────────┘
+     │
+┌────▼──────────────┐
+│ 4.6 Detection     │  ← chưa triển khai
+│     Event         │
+└───────────────────┘
+```
+
+Rule Loader **không** phụ thuộc Scapy hay Flow Tracker; nó chỉ đọc rule và quản lý nguồn rule.
+
 ---
 
 ## 3. Cấu trúc thư mục
@@ -75,7 +110,20 @@ PCAP và Live Capture sử dụng chung một pipeline (`pipeline/pipeline.py`) 
 ├── TEST/
 │   ├── tcp_handshake/ ...    # Assignment 1 artifacts
 │   ├── ...
-│   └── assignment_2/         # Assignment 2 fixtures + results
+│   ├── assignment_2/         # Assignment 2 fixtures + results
+│   └── BT3/                  # Assignment 3 fixtures, evidence, reports
+│       ├── README.md
+│       └── rule_loader/
+│           ├── fixtures/     # .rules fixtures cho RL01–RL14
+│           ├── evidence/     # log test + candidates.jsonl
+│           └── REPORT_RULE_LOADER.md
+├── rules/                    # rule mẫu + cấu hình Rule Loader
+│   ├── rule_loader.json
+│   ├── web.rules
+│   ├── local.rules
+│   └── dos.rules
+├── core_engine/              # Assignment 3 Core Engine
+│   └── rule_loader/          # mục 4.1: models.py, config.py, loader.py, __main__.py
 ├── capture/
 │   ├── __init__.py
 │   ├── live.py
@@ -102,7 +150,8 @@ PCAP và Live Capture sử dụng chung một pipeline (`pipeline/pipeline.py`) 
 │   ├── generate_test_pcaps.py
 │   ├── generate_malformed_pcap.py
 │   ├── generate_assignment2_fixtures.py
-│   └── test_assignment2_*.py
+│   ├── test_assignment2_*.py
+│   └── test_rule_loader.py   # RL01–RL14 (Assignment 3, mục 4.1)
 ├── requirements.txt
 └── output/
 ```
@@ -148,11 +197,43 @@ python main.py --list-interfaces
 python -m unittest discover -s tests -v
 ```
 
+Chỉ test Rule Loader (Bài tập 3, mục 4.1):
+
+```bash
+python -m unittest tests.test_rule_loader -v
+```
+
 Tạo lại fixture Assignment 2:
 
 ```bash
 python tests/generate_assignment2_fixtures.py
 ```
+
+### 4.5 Chạy Rule Loader (Bài tập 3, mục 4.1)
+
+```bash
+# Dùng cấu hình của repository
+python -m core_engine.rule_loader --config rules/rule_loader.json --stats --list
+
+# Xuất candidate ra JSONL cho bước 4.2
+python -m core_engine.rule_loader --config rules/rule_loader.json \
+    --output output/candidates.jsonl
+
+# Nạp nhanh nhiều file, không cần file cấu hình
+python -m core_engine.rule_loader --rules rules/web.rules --rules rules/local.rules --list
+```
+
+| Option | Mặc định | Ý nghĩa |
+| --- | --- | --- |
+| `--config` | `rules/rule_loader.json` | File cấu hình JSON của Rule Loader |
+| `--rules` | – | File `.rules` cần nạp (lặp lại được); thay thế `rule_files` trong config |
+| `--base-dir` | thư mục file config | Base directory cho đường dẫn tương đối |
+| `--output` | – | Ghi candidate ra JSONL |
+| `--list` | – | In `rule_ref` + raw text từng candidate |
+| `--stats` | – | In thống kê (mặc định in khi không có `--list`) |
+| `--log-level` | `INFO` | Mức log diagnostic |
+
+Exit code: `0` không lỗi, `1` có file/candidate lỗi, `2` cấu hình không dùng được.
 
 ---
 
@@ -310,19 +391,140 @@ chứng thô trong `TEST/assignment_2/evidence/`.
 
 Fixture tái hiện: `TEST/assignment_2/input_mixed.pcap`, `result_events.jsonl`, `result_flows.jsonl` (tạo bằng `tests/generate_assignment2_fixtures.py`).
 
+### 8.3 Bài tập 3 — Rule Loader (RL01–RL14)
+
+| ID | Tình huống | Kết quả |
+| --: | --- | --- |
+| RL01 | Rule + comment + dòng trắng | candidate đúng thứ tự, metadata nguồn đúng — **PASS** |
+| RL02 | Nạp nhiều file `.rules` | giữ thứ tự file/rule, metadata không trộn — **PASS** |
+| RL03 | File bị disable | không có candidate, `files_disabled=1` — **PASS** |
+| RL04 | Disable một rule | rule trước/sau vẫn nạp, `rules_disabled=1` — **PASS** |
+| RL05 | File không tồn tại / không phải file / không đọc được | warning + file khác vẫn nạp — **PASS** |
+| RL06 | File sai extension | policy `strict` bỏ file, `lenient` nạp kèm warning — **PASS** |
+| RL07 | Candidate processing error | warning theo `rule_ref`, candidate sau vẫn xử lý — **PASS** |
+| RL08 | File rỗng / chỉ comment | 0 candidate, không exception — **PASS** |
+| RL09 | Comment có whitespace phía trước | bị nhận diện là comment — **PASS** |
+| RL10 | `#` bên trong nội dung rule | raw text giữ nguyên — **PASS** |
+| RL11 | Relative path | `rule_ref` ổn định, không phụ thuộc `cwd` — **PASS** |
+| RL12 | Selector không tồn tại | warning, rule khác vẫn nạp — **PASS** |
+| RL13 | Lỗi cấu hình / encoding | báo rõ nguyên nhân, không tắt toàn bộ — **PASS** |
+| RL14 | Regression / isolation | file lỗi + candidate lỗi không chặn phần còn lại — **PASS** |
+
+Kết quả test gần nhất (chạy tại repo):
+
+```text
+Ran 37 tests in 0.006s
+OK
+```
+
+Index testcase, bằng chứng và lệnh tái hiện: [`TEST/BT3/README.md`](TEST/BT3/README.md).
+Report chi tiết: [`TEST/BT3/rule_loader/REPORT_RULE_LOADER.md`](TEST/BT3/rule_loader/REPORT_RULE_LOADER.md).
+
 ---
 
-## 9. Hạn chế hiện tại
+## 9. Bài tập 3 — Rule Loader (mục 4.1)
+
+### 9.1 Mục tiêu
+
+Rule Loader là module đầu vào của Core Engine: đọc một hoặc nhiều file `.rules`, bỏ comment và
+dòng trắng, quản lý enable/disable theo cấu hình, cô lập lỗi, rồi bàn giao **rule candidate** cho
+Rule Parser & Validator (mục 4.2). Loader **không** parse cú pháp Snort, không tìm SID/msg/content,
+không so khớp với event.
+
+### 9.2 Module
+
+| Thành phần | Đường dẫn |
+| --- | --- |
+| Data contract | `core_engine/rule_loader/models.py` (`RuleSourceEntry`, `RuleLoadResult`, `RuleLoadWarning`, `RuleLoadStatistics`, `RuleFileSummary`) |
+| Cấu hình | `core_engine/rule_loader/config.py` (`RuleLoaderConfig`, `RuleFileConfig`, `RuleLoaderConfigError`) |
+| Loader | `core_engine/rule_loader/loader.py` (`RuleLoader.load()`) |
+| CLI | `core_engine/rule_loader/__main__.py` (`python -m core_engine.rule_loader`) |
+| Rule + config mẫu | `rules/web.rules`, `rules/local.rules`, `rules/dos.rules`, `rules/rule_loader.json` |
+
+### 9.3 Cấu hình (`rules/rule_loader.json`)
+
+Project không dùng YAML (không có dependency), nên cấu hình dùng JSON thuần standard library:
+
+```json
+{
+  "rule_files": [
+    {"path": "web.rules", "enabled": true},
+    {"path": "local.rules", "enabled": true},
+    {"path": "dos.rules", "enabled": false}
+  ],
+  "rule_overrides": {
+    "local.rules:7": {"enabled": false}
+  }
+}
+```
+
+Quy tắc:
+
+* `rule_files` giữ đúng thứ tự cấu hình; `enabled` bỏ trống ⇒ **bật** (mặc định rõ ràng).
+* `rule_overrides` chọn rule theo `rule_ref = <source_file>:<line_number>`
+  (ví dụ `local.rules:7`) vì mục 4.2 chưa parse SID.
+* Giá trị override là `true`/`false` hoặc `{"enabled": bool}`.
+* **Precedence:** disabled thắng enabled. File bị disable **không** được nạp lại bởi override
+  `true` cho một rule bên trong (sẽ có warning `UNKNOWN_RULE_OVERRIDE`).
+* Đường dẫn tương đối resolve theo `base_dir` — mặc định là thư mục chứa file cấu hình, nên
+  `rule_ref` ổn định và không phụ thuộc current working directory.
+* Entry cấu hình sai ⇒ warning `INVALID_CONFIG` và các entry khác vẫn nạp. Tài liệu JSON hỏng
+  hoặc sai cấu trúc ⇒ `RuleLoaderConfigError` (không âm thầm tắt toàn bộ rule).
+
+### 9.4 API
+
+```python
+from core_engine.rule_loader import RuleLoader, RuleLoaderConfig
+
+config = RuleLoaderConfig.from_json_file("rules/rule_loader.json")
+result = RuleLoader(config).load()
+
+print(result.statistics.to_dict())      # files_loaded, rules_emitted, ...
+for candidate in result.rules:          # giao cho mục 4.2
+    parser_validator.parse(candidate)   # parser_validator chưa được viết ở mục 4.1
+
+for warning in result.warnings:
+    print(warning.code, warning.message)
+```
+
+Callback cũng được hỗ trợ: `RuleLoader(config).load(handler=parser_validator.parse)`.
+
+`RuleSourceEntry`: `raw_text`, `source_file`, `path`, `line_number`, `rule_ref`, `file_index`,
+`enabled`. `RuleLoadResult`: `rules`, `disabled_rules`, `warnings`, `statistics`, `file_results`.
+
+### 9.5 Test
+
+```bash
+python -m unittest tests.test_rule_loader -v     # 37 test RL01–RL14
+python -m unittest discover -s tests -v          # 91 test toàn repository
+```
+
+Fixture: `TEST/BT3/rule_loader/fixtures/`. Bằng chứng: `TEST/BT3/rule_loader/evidence/`.
+
+### 9.6 Phạm vi đã hoàn thành
+
+* **Đã làm — mục 4.1 Rule Loader:** đọc nhiều file, lọc comment/dòng trắng, enable/disable file
+  và rule, cô lập lỗi, thống kê/logging, data contract bàn giao cho mục 4.2, test RL01–RL14.
+* **Chưa làm:** 4.2 Rule Parser & Validator, 4.3 Rule Repository/Indexer, 4.4 Rule Matching
+  Engine, 4.5 Rule Evaluation Engine, 4.6 Detection Event Generator; chưa có alert/logging/response.
+
+---
+
+## 10. Hạn chế hiện tại
 
 * Không giải mã TLS/HTTPS (chỉ phân tích HTTP/1.x plaintext).
 * MIME chỉ được decode khi payload chứa đủ header `Content-Transfer-Encoding` và body; không coi mọi body SMTP là MIME.
 * DNS payload binary khi decode sang text sẽ bị đánh dấu `partial` — đây là hành vi đúng của character decoder.
 * Raw payload chỉ giữ prefix có giới hạn (`max_payload_size`), dạng base64 để tương thích JSONL (đánh đổi riêng tư / volume dữ liệu).
 * Flow tracker chưa xử lý IP fragmentation reassembly.
+* Rule Loader (Bài tập 3, mục 4.1) chưa parse Snort rule: `rule_ref` dựa trên số dòng nên khi chèn/xoá dòng phải cập nhật `rule_overrides`; chưa có index/dedup rule (mục 4.3) và chưa xử lý directive `include`.
+* Rule Loader không hot-reload file rule; mỗi lần đổi cấu hình phải gọi `load()` lại.
+* Rule Loader chưa được nối vào `main.py` của pipeline Bài 1–2 (giữ nguyên hành vi CLI cũ); loader có CLI riêng `python -m core_engine.rule_loader`.
+* Encoding mặc định UTF-8 `strict`; policy `replace` là tuỳ chọn có mất dữ liệu.
 
 ---
 
-## 10. AI Disclosure
+## 11. AI Disclosure
 
 ### Bài tập 1
 
@@ -348,3 +550,21 @@ AI-assisted trong Assignment 2:
 * Cập nhật README này.
 
 Tất cả code và kết quả test đều được chạy lại thực tế trong môi trường WSL trước khi hoàn thiện; không bịa kết quả.
+
+### Bài tập 3 (mục 4.1 Rule Loader)
+
+Công cụ AI sử dụng: coding agent **DeepSeek V4.1 Flash Free** chạy trong **OpenCode**.
+
+AI-assisted trong Assignment 3 — mục 4.1:
+
+* Thiết kế data contract Rule Loader (`core_engine/rule_loader/models.py`).
+* Viết cấu hình JSON và logic enable/disable file/rule (`core_engine/rule_loader/config.py`).
+* Viết Rule Loader, cô lập lỗi, thống kê, logging (`core_engine/rule_loader/loader.py`).
+* Viết CLI `python -m core_engine.rule_loader` (`core_engine/rule_loader/__main__.py`).
+* Tạo rule mẫu và cấu hình (`rules/`), fixture `TEST/BT3/rule_loader/fixtures/`.
+* Viết test RL01–RL14 (`tests/test_rule_loader.py`).
+* Tạo report/evidence (`TEST/BT3/`) và cập nhật README.
+
+Mục 4.2–4.6 **không** được AI sinh code trong lần làm này (chưa triển khai).
+Toàn bộ lệnh test, log và kết quả trong `TEST/BT3/rule_loader/evidence/` là kết quả chạy thật
+trong môi trường WSL; người thực hiện cần đọc, review và hiểu code trước khi nộp.
