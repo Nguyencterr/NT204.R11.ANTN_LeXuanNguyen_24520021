@@ -1,0 +1,8 @@
+# RL01/RL02 fixture: comment lines and blank lines are skipped by the loader.
+# The loader does not validate Snort syntax; it only forwards candidates.
+
+alert tcp $HOME_NET any -> $EXTERNAL_NET 80 (msg:"RL01 web rule one"; content:"GET /index.html"; sid:1000001; rev:1;)
+    # RL09 fixture: leading whitespace before '#' still marks a comment line.
+alert tcp any any -> any 80 (msg:"RL10 hash inside content"; content:"GET /#fragment"; sid:1000002; rev:1;)
+
+alert tcp $EXTERNAL_NET 80 -> $HOME_NET any (msg:"RL02 web rule three"; content:"HTTP/1.1 200"; sid:1000003; rev:1;)

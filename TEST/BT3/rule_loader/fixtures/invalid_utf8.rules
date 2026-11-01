@@ -1,0 +1,2 @@
+# RL13 fixture: invalid UTF-8 bytes in a rule file (strict policy fails the file).
+alert tcp any any -> any 80 (msg:"invalid ÿş bytes"; sid:5000001; rev:1;)

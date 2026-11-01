@@ -1,0 +1,2 @@
+# RL11 fixture: nested path resolved against the configured base directory.
+alert tcp any any -> any 8080 (msg:"RL11 nested rule"; sid:6000001; rev:1;)

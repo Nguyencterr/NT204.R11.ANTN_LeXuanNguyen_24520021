@@ -1,0 +1,2 @@
+# RL06 fixture: .txt is not an allowed rule file suffix.
+alert tcp any any -> any 80 (msg:"RL06 wrong extension"; sid:4000001; rev:1;)
