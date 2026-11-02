@@ -1,0 +1,4 @@
+# TC13 one event must match two independent rules.
+alert tcp any any -> any 80 (msg:"TC13 first GET"; content:"GET"; sid:4100801; rev:1;)
+alert tcp any any -> any 80 (msg:"TC13 second index"; content:"/index"; sid:4100802; rev:1;)
+alert tcp any any -> any 80 (msg:"TC13 third missing"; content:"/missing"; sid:4100803; rev:1;)

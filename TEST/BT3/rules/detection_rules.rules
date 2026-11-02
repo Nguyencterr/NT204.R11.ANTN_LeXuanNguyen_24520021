@@ -1,0 +1,2 @@
+# TC14 full Detection Event metadata.
+alert tcp 192.168.1.0/24 any -> any 8080 (msg:"TC14 suspicious URI"; content:"OR 1=1"; nocase; classtype:web-application-attack; priority:1; sid:4100901; rev:3;)
