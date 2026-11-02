@@ -1,0 +1,6 @@
+# TC12 TCP flags and dsize.
+alert tcp any any -> any any (msg:"TC12 syn only"; flags:S; sid:4100601; rev:1;)
+alert tcp any any -> any any (msg:"TC12 syn and ack"; flags:SA; sid:4100602; rev:1;)
+alert tcp any any -> any any (msg:"TC12 dsize greater"; dsize:>4; sid:4100603; rev:1;)
+alert tcp any any -> any any (msg:"TC12 dsize equal"; dsize:4; sid:4100604; rev:1;)
+alert tcp any any -> any any (msg:"TC12 dsize at most"; dsize:<=4; sid:4100605; rev:1;)

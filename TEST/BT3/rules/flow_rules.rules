@@ -1,0 +1,6 @@
+# TC08 flow conditions evaluated from the tracker adapter.
+alert tcp any any <> any any (msg:"TC08 to server established"; flow:to_server,established; content:"GET"; sid:4100701; rev:1;)
+alert tcp any any <> any any (msg:"TC08 to client established"; flow:to_client,established; content:"GET"; sid:4100702; rev:1;)
+alert tcp any any <> any any (msg:"TC08 not established"; flow:not_established; content:"GET"; sid:4100703; rev:1;)
+alert tcp any any <> any any (msg:"TC08 flow required"; flow:to_server; content:"GET"; sid:4100704; rev:1;)
+alert udp any any <> any any (msg:"TC08 udp to server"; flow:to_server; content:"dns"; sid:4100705; rev:1;)

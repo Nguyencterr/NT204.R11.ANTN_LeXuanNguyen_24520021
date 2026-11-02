@@ -1,0 +1,10 @@
+# TC09-TC11 content modifiers.
+alert tcp any any -> any any (msg:"TC09 case sensitive Admin"; content:"Admin"; sid:4100501; rev:1;)
+alert tcp any any -> any any (msg:"TC09 nocase Admin"; content:"Admin"; nocase; sid:4100502; rev:1;)
+alert tcp any any -> any any (msg:"TC10 offset depth hit"; content:"EVIL"; offset:10; depth:6; sid:4100503; rev:1;)
+alert tcp any any -> any any (msg:"TC10 offset depth miss"; content:"EVIL"; offset:20; depth:6; sid:4100504; rev:1;)
+alert tcp any any -> any any (msg:"TC11 distance within hit"; content:"BEGIN"; content:"END"; distance:2; within:3; sid:4100505; rev:1;)
+alert tcp any any -> any any (msg:"TC11 distance within miss"; content:"BEGIN"; content:"END"; distance:6; within:2; sid:4100506; rev:1;)
+alert tcp any any -> any any (msg:"TC11 backtracking"; content:"XY"; content:"ZZ"; distance:1; within:3; sid:4100507; rev:1;)
+alert tcp any any -> any any (msg:"TC10 depth exact"; content:"EVIL"; offset:10; depth:4; sid:4100508; rev:1;)
+alert tcp any any -> any any (msg:"TC10 depth too short"; content:"EVIL"; offset:10; depth:3; sid:4100509; rev:1;)

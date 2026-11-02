@@ -22,6 +22,8 @@ import hashlib
 from dataclasses import dataclass, field
 from typing import Any
 
+from .context import build_flow_context
+
 PROTO_TCP = "TCP"
 PROTO_UDP = "UDP"
 
@@ -137,6 +139,12 @@ class Flow:
     handshake_synack: bool = False
     fin_directions: set = field(default_factory=set)
 
+    #: Endpoint that sent the first SYN without ACK (Assignment 3 adapter).
+    syn_sender: tuple[str, int | None] | None = None
+
+    #: True once the TCP flow reached ESTABLISHED (or was observed mid-stream).
+    ever_established: bool = False
+
     def to_record(
         self,
         finalization_reason: str,
@@ -198,6 +206,11 @@ class FlowTracker:
 
         self.finalized_count = 0
 
+        #: Additive Assignment 3 view of the flow touched by the last event.
+        #: It is set *before* terminal finalization so a RST/FIN packet still
+        #: has a context for rule evaluation.
+        self.last_context: dict[str, Any] | None = None
+
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
@@ -215,6 +228,8 @@ class FlowTracker:
 
         records: list[dict[str, Any]] = []
 
+        self.last_context = None
+
         timestamp = _coerce_float(event.get("timestamp"))
 
         if timestamp is not None:
@@ -230,6 +245,10 @@ class FlowTracker:
         flow = self._get_or_create(endpoints, timestamp)
 
         self._update(flow, event, timestamp)
+
+        # Assignment 3: expose the flow state for this packet before a terminal
+        # close/reset removes the flow from the active table.
+        self.last_context = build_flow_context(flow, event)
 
         if (
             flow.protocol == PROTO_TCP
@@ -479,6 +498,10 @@ class FlowTracker:
 
             self._update_tcp_state(flow, transport, event, forward)
 
+            if flow.state == STATE_ESTABLISHED:
+
+                flow.ever_established = True
+
     def _update_tcp_state(
         self,
         flow: Flow,
@@ -549,6 +572,19 @@ class FlowTracker:
         if syn and not ack:
 
             flow.handshake_syn = True
+
+            if flow.syn_sender is None:
+
+                syn_port = event.get("src_port")
+
+                if syn_port is None:
+
+                    syn_port = transport.get("src_port")
+
+                flow.syn_sender = (
+                    str(event.get("src_ip")),
+                    _coerce_port(syn_port),
+                )
 
             if flow.state == STATE_NEW:
 
