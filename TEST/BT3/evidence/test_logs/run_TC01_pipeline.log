@@ -1,0 +1,12 @@
+# command: .venv/bin/python -m unittest tests.test_assignment3_pipeline.PipelineIntegrationTestCase -v
+test_detections_are_written_as_valid_jsonl (tests.test_assignment3_pipeline.PipelineIntegrationTestCase.test_detections_are_written_as_valid_jsonl) ... /home/Nguyencter/NT204.R11.ANTN_LeXuanNguyen_24520021/.venv/lib/python3.14/site-packages/scapy/layers/dns.py:1259: DeprecationWarning: The DNS fields 'qd', 'an', 'ns' and 'ar' are now PacketListField(s) ! To access the first element, use pkt.an[0] instead of pkt.an
+  warnings.warn(
+ok
+test_pipeline_without_rules_keeps_assignment_2_behaviour (tests.test_assignment3_pipeline.PipelineIntegrationTestCase.test_pipeline_without_rules_keeps_assignment_2_behaviour) ... ok
+test_smoke_pcap_generates_expected_detections (tests.test_assignment3_pipeline.PipelineIntegrationTestCase.test_smoke_pcap_generates_expected_detections) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.018s
+
+OK
+# exit code: 0

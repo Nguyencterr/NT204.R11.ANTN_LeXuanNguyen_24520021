@@ -1,82 +1,117 @@
-# TEST/BT3 — Bài tập 3 (Core Engine), mục 4.1 Rule Loader
+# TEST/BT3 — Bài tập 3 (Core Engine)
 
-Thư mục này chứa fixture, bằng chứng chạy test và report cho **Bài tập 3, mục 4.1 Rule Loader**.
+Thư mục này chứa fixture, bằng chứng chạy test và report cho **Bài tập 3**:
 
-* **Report chi tiết:** [`rule_loader/REPORT_RULE_LOADER.md`](rule_loader/REPORT_RULE_LOADER.md)
-* **Phạm vi:** chỉ 4.1. Mục 4.2–4.6 **chưa triển khai**.
-* **Code:** `core_engine/rule_loader/` (`models.py`, `config.py`, `loader.py`, `__main__.py`)
-* **Cấu hình + rule mẫu:** `rules/rule_loader.json`, `rules/web.rules`, `rules/local.rules`, `rules/dos.rules`
-* **Test:** `tests/test_rule_loader.py`
-* **Fixture:** `rule_loader/fixtures/`
-* **Evidence:** `rule_loader/evidence/`
+- **4.1 Rule Loader** (đã có từ trước, giữ nguyên)
+- **4.2 Rule Parser & Validator**
+- **4.3 Rule Repository / Indexer**
+- **4.4 Rule Matching Engine**
+- **4.5 Rule Evaluation Engine**
+- **4.6 Detection Event Generator**
 
-## 1. Bảng testcase
+## 1. Report và bằng chứng
 
-| ID | Tình huống | Test class / method | Trạng thái | Evidence |
-| --- | --- | --- | --- | --- |
-| RL01 | File có rule, comment, dòng trắng | `RuleFileParsingTestCase` (3 test) | PASS | `rule_loader/evidence/run_RL01_parse.log` |
-| RL02 | Nạp nhiều file, giữ thứ tự | `MultiFileTestCase` (2 test) | PASS | `rule_loader/evidence/run_RL02_multifile.log` |
-| RL03 | File bị disable | `RuleFileEnableTestCase` (2 test) | PASS | `rule_loader/evidence/run_RL03_file_disable.log` |
-| RL04 | Disable một rule riêng lẻ | `PerRuleEnableTestCase` (3 test) | PASS | `rule_loader/evidence/run_RL04_rule_disable.log` |
-| RL05 | File không tồn tại / không phải file / không đọc được | `RuleFileErrorTestCase` (3 test) | PASS | `rule_loader/evidence/run_RL05_missing_file.log` |
-| RL06 | File sai extension | `RuleFileErrorTestCase` (2 test) | PASS | `rule_loader/evidence/run_RL06_extension.log` |
-| RL07 | Candidate processing error | `CandidateHandlerTestCase` (1 test) | PASS | `rule_loader/evidence/run_RL07_handler_error.log` |
-| RL08 | File rỗng / chỉ comment | `EmptyFileTestCase` (2 test) | PASS | `rule_loader/evidence/run_RL08_empty_files.log` |
-| RL09 | Comment có whitespace phía trước | `CommentDetectionTestCase::test_comment_with_leading_whitespace_is_skipped` | PASS | `rule_loader/evidence/run_RL09_comment_whitespace.log` |
-| RL10 | `#` bên trong nội dung rule | `CommentDetectionTestCase::test_hash_inside_rule_body_is_preserved` | PASS | `rule_loader/evidence/run_RL10_hash_in_rule.log` |
-| RL11 | Relative path | `RulePathTestCase` (4 test) | PASS | `rule_loader/evidence/run_RL11_relative_path.log` |
-| RL12 | Selector không tồn tại | `RuleOverrideTestCase` (3 test) | PASS | `rule_loader/evidence/run_RL12_unknown_selector.log` |
-| RL13 | Lỗi cấu hình / encoding | `RuleLoaderConfigTestCase` (8 test) | PASS | `rule_loader/evidence/run_RL13_config_errors.log` |
-| RL14 | Regression / isolation | `IsolationRegressionTestCase` (1 test) | PASS | `rule_loader/evidence/run_RL14_isolation.log` |
-| — | Cấu hình mẫu `rules/rule_loader.json` | `ShippedConfigTestCase` (1 test) | PASS | `rule_loader/evidence/run_shipped_config.log` |
-
-Tổng: **37/37 PASS**. Regression toàn repository: **91/91 PASS**.
-
-## 2. Lệnh tái hiện
-
-```bash
-# Toàn bộ test Rule Loader
-.venv/bin/python -m unittest tests.test_rule_loader -v
-
-# Toàn bộ test repository (Bài 1–2 + Bài 3 mục 4.1)
-.venv/bin/python -m unittest discover -s tests -v
-
-# CLI với cấu hình mẫu
-.venv/bin/python -m core_engine.rule_loader --config rules/rule_loader.json --stats --list
-
-# CLI xuất candidate JSONL
-.venv/bin/python -m core_engine.rule_loader --config rules/rule_loader.json \
-    --output TEST/BT3/rule_loader/evidence/candidates.jsonl
-```
-
-## 3. Evidence
-
-| File | Nội dung |
+| Nội dung | Đường dẫn |
 | --- | --- |
-| `rule_loader/evidence/run_rule_loader_tests.log` | 37 test Rule Loader, `OK`, exit 0 |
-| `rule_loader/evidence/run_full_suite.log` | 91 test toàn repository, `OK`, exit 0 |
-| `rule_loader/evidence/run_RL01_*.log` … `run_RL14_*.log` | Log riêng từng testcase |
-| `rule_loader/evidence/run_cli_default.log` | CLI: 5 candidate, `dos.rules` bị tắt, exit 0 |
-| `rule_loader/evidence/run_cli_missing_rule_file.log` | Một file rule thiếu: 3 candidate vẫn nạp, exit 1 |
-| `rule_loader/evidence/run_cli_missing_config.log` | Cấu hình không tồn tại, exit 2 |
-| `rule_loader/evidence/run_cli_broken_json.log` | JSON hỏng (báo dòng/cột), exit 2 |
-| `rule_loader/evidence/candidates.jsonl` | Output JSONL thật của loader (5 dòng) |
+| Report 4.1 Rule Loader | [`rule_loader/REPORT_RULE_LOADER.md`](rule_loader/REPORT_RULE_LOADER.md) |
+| Report TC01–TC14 (4.2–4.6) | [`reports/README.md`](reports/README.md) |
+| Test log thật | `evidence/test_logs/` |
+| JSONL output thật | `evidence/jsonl/` |
+| Log CLI / môi trường | `evidence/other/` |
+| Rule fixture | `rules/*.rules` |
 
-## 4. Fixture
+## 2. Bảng testcase 4.2–4.6 (TC01–TC14)
+
+| ID | Tình huống | Test class | Kết quả | Log |
+| --- | --- | --- | --- | --- |
+| TC01 | Loader → Parser → Pipeline → Detection | `TC01LoaderIntegrationTestCase`, `PipelineIntegrationTestCase` | PASS | `run_TC01_loader.log`, `run_TC01_pipeline.log` |
+| TC02 | Rule sai cú pháp, rule sau vẫn parse | `TC02InvalidRuleTestCase` | PASS | `run_TC02.log` |
+| TC03 | Keyword ngoài phạm vi | `TC03UnsupportedKeywordTestCase` | PASS | `run_TC03.log` |
+| TC04 | Header any/IPv4/CIDR/port/range/hướng | `TC04HeaderParsingTestCase` | PASS | `run_TC04.log` |
+| TC05 | `->` một chiều, `<>` hai chiều | `TC05DirectionTestCase` | PASS | `run_TC05.log` |
+| TC06 | Indexer candidate | `TC06IndexerTestCase` | PASS | `run_TC06.log` |
+| TC07 | Header short-circuit | `TC07HeaderShortCircuitTestCase` | PASS | `run_TC07.log` |
+| TC08 | `flow:` từ tracker adapter | `TC08FlowStateTestCase` | PASS | `run_TC08.log` |
+| TC09 | `content` / `nocase` | `TC09ContentNocaseTestCase` | PASS | `run_TC09.log` |
+| TC10 | `offset` / `depth` | `TC10OffsetDepthTestCase` | PASS | `run_TC10.log` |
+| TC11 | `distance` / `within` + backtracking | `TC11DistanceWithinTestCase` | PASS | `run_TC11.log` |
+| TC12 | TCP `flags` + `dsize` | `TC12FlagsDsizeTestCase` | PASS | `run_TC12.log` |
+| TC13 | Nhiều match ⇒ nhiều detection | `TC13MultipleMatchesTestCase` | PASS | `run_TC13.log` |
+| TC14 | Schema Detection Event | `TC14DetectionEventTestCase` | PASS | `run_TC14.log` |
+
+Test bổ sung: `ParserOptionContractTestCase`, `RepositoryDiagnosticsTestCase`,
+`EvaluationStatisticsAndIsolationTestCase` (log `run_contract_*.log`).
+
+**Kết quả thật:** 63/63 test Assignment 3 PASS; 154/154 test toàn repository PASS
+(91 test Bài 1–2 + 4.1, 63 test 4.2–4.6). Xem `evidence/test_logs/run_assignment3_suite.log`
+và `run_full_suite.log`.
+
+## 3. Rule fixture
 
 | File | Dùng cho |
 | --- | --- |
-| `rule_loader/fixtures/web.rules` | RL01, RL02, RL03, RL07, RL09, RL10, RL11 |
-| `rule_loader/fixtures/local.rules` | RL02, RL04, RL12, RL14 |
-| `rule_loader/fixtures/hash_in_content.rules` | RL10 |
-| `rule_loader/fixtures/empty.rules` | RL08 |
-| `rule_loader/fixtures/comments_only.rules` | RL08 |
-| `rule_loader/fixtures/wrong_extension.txt` | RL06 |
-| `rule_loader/fixtures/invalid_utf8.rules` | RL13 (byte `0xFF 0xFE`) |
-| `rule_loader/fixtures/nested/deep.rules` | RL11 |
+| `loading.rules` | TC01 |
+| `header_rules.rules`, `header_invalid.rules` | TC04, TC06 |
+| `invalid_rules.rules` | TC02 |
+| `unsupported_rules.rules` | TC03 |
+| `direction_rules.rules` | TC05 |
+| `content_rules.rules` | TC09, TC10, TC11 |
+| `flags_dsize.rules`, `flags_invalid.rules` | TC12 |
+| `flow_rules.rules`, `flow_invalid.rules` | TC08 |
+| `multi_match.rules` | TC13 |
+| `detection_rules.rules` | TC14 |
+| `modifiers_invalid.rules`, `dsize_invalid.rules` | Option contract |
+| `duplicate_sid.rules` | Duplicate SID policy |
+| `quoted.rules`, `required.rules` | Parser contract |
+| `smoke.rules` | CLI/PCAP end-to-end |
+| `bt3_rules.json` | Cấu hình loader cho smoke |
 
-## 5. Ghi chú
+## 4. Lệnh tái hiện
 
-* Không có test nào kiểm tra cú pháp Snort: mục 4.1 không parse rule, mục 4.2 mới làm việc đó.
-* Các artifact của Bài tập 1 (`TEST/tcp_handshake/`, …) và Bài tập 2 (`TEST/assignment_2/`)
-  được giữ nguyên, không bị thay đổi bởi Bài tập 3.
+```bash
+# Toàn bộ test Bài tập 3
+.venv/bin/python -m unittest tests.test_assignment3_parser \
+    tests.test_assignment3_repository tests.test_assignment3_matching \
+    tests.test_assignment3_evaluation tests.test_assignment3_pipeline -v
+
+# Toàn bộ repository (Bài 1–2 + Bài 3)
+.venv/bin/python -m unittest discover -s tests -v
+
+# Rule Loader (4.1)
+.venv/bin/python -m unittest tests.test_rule_loader -v
+
+# CLI end-to-end với rule thật
+.venv/bin/python main.py --pcap TEST/assignment_2/input_mixed.pcap \
+    --rules TEST/BT3/rules/smoke.rules \
+    --output output/events.jsonl \
+    --flows-output output/flows.jsonl \
+    --detections-output output/detections.jsonl
+
+# Tạo lại toàn bộ JSONL/log bằng chứng
+.venv/bin/python tests/generate_bt3_evidence.py
+```
+
+## 5. Evidence chi tiết
+
+| File | Nội dung |
+| --- | --- |
+| `evidence/test_logs/run_TC01_loader.log` … `run_TC14.log` | Log riêng từng testcase, có `# exit code: 0` |
+| `evidence/test_logs/run_contract_*.log` | Test contract bổ sung |
+| `evidence/test_logs/run_assignment3_suite.log` | 63 test Assignment 3, `OK` |
+| `evidence/test_logs/run_full_suite.log` | 154 test toàn repository, `OK` |
+| `evidence/jsonl/parse_results_all_rules.jsonl` | 67 parse result thật (45 valid, 17 invalid, 5 unsupported) |
+| `evidence/jsonl/repository_diagnostics.jsonl` | 23 diagnostic thật (gồm 1 duplicate SID) |
+| `evidence/jsonl/candidate_selection.jsonl` | 4 truy vấn index thật |
+| `evidence/jsonl/smoke_detections.jsonl` | 3 detection thật từ PCAP |
+| `evidence/jsonl/smoke_events.jsonl`, `smoke_flows.jsonl` | 15 event + 7 flow thật |
+| `evidence/jsonl/no_rules_events.jsonl`, `no_rules_flows.jsonl` | Chạy không rule, giữ hành vi Bài 2 |
+| `evidence/other/run_cli_smoke.log` | CLI có rule, exit 0 |
+| `evidence/other/run_cli_no_rules.log` | CLI không rule, exit 0 |
+
+## 6. Ghi chú
+
+- Không có report/log nào được viết tay thay cho kết quả chạy; mọi log đều do
+  `unittest`/CLI sinh ra và có dòng exit code.
+- Artifact Bài tập 1 (`TEST/tcp_handshake/`, …) và Bài tập 2 (`TEST/assignment_2/`)
+  được giữ nguyên.
+- Report 4.1 vẫn nằm ở `rule_loader/`; report 4.2–4.6 nằm ở `reports/`.

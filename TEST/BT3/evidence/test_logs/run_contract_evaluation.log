@@ -1,0 +1,10 @@
+# command: .venv/bin/python -m unittest tests.test_assignment3_evaluation.EvaluationStatisticsAndIsolationTestCase -v
+test_no_match_counts_without_detection (tests.test_assignment3_evaluation.EvaluationStatisticsAndIsolationTestCase.test_no_match_counts_without_detection) ... ok
+test_non_mapping_event_is_counted_and_isolated (tests.test_assignment3_evaluation.EvaluationStatisticsAndIsolationTestCase.test_non_mapping_event_is_counted_and_isolated) ... ok
+test_one_failing_candidate_does_not_stop_the_others (tests.test_assignment3_evaluation.EvaluationStatisticsAndIsolationTestCase.test_one_failing_candidate_does_not_stop_the_others) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+OK
+# exit code: 0

@@ -1,0 +1,8 @@
+# command: /home/Nguyencter/NT204.R11.ANTN_LeXuanNguyen_24520021/.venv/bin/python main.py --pcap TEST/assignment_2/input_mixed.pcap --rules TEST/BT3/rules/smoke.rules --output TEST/BT3/evidence/jsonl/smoke_events.jsonl --flows-output TEST/BT3/evidence/jsonl/smoke_flows.jsonl --detections-output TEST/BT3/evidence/jsonl/smoke_detections.jsonl
+# exit code: 0
+Rules: 3 candidate(s), 3 valid, 0 invalid, 0 unsupported
+Finished processing 15 packets.
+Events: TEST/BT3/evidence/jsonl/smoke_events.jsonl (15 written, 0 skipped)
+Flows:  TEST/BT3/evidence/jsonl/smoke_flows.jsonl (7 finalized)
+Detections: TEST/BT3/evidence/jsonl/smoke_detections.jsonl (3 written)
+Rule evaluation: {'events_evaluated': 15, 'candidate_rules': 5, 'matches': 3, 'no_match_count': 2, 'invalid_event_count': 0, 'errors': 0, 'detections_generated': 3}

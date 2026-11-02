@@ -1,0 +1,12 @@
+# command: .venv/bin/python -m unittest tests.test_assignment3_matching.TC11DistanceWithinTestCase -v
+test_backtracking_tries_later_first_content (tests.test_assignment3_matching.TC11DistanceWithinTestCase.test_backtracking_tries_later_first_content) ... ok
+test_content_too_far_does_not_match (tests.test_assignment3_matching.TC11DistanceWithinTestCase.test_content_too_far_does_not_match) ... ok
+test_distance_miss_rule_does_not_match (tests.test_assignment3_matching.TC11DistanceWithinTestCase.test_distance_miss_rule_does_not_match) ... ok
+test_first_absolute_occurrence_is_not_used_for_relative_search (tests.test_assignment3_matching.TC11DistanceWithinTestCase.test_first_absolute_occurrence_is_not_used_for_relative_search) ... ok
+test_second_content_is_found_relative_to_first (tests.test_assignment3_matching.TC11DistanceWithinTestCase.test_second_content_is_found_relative_to_first) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.001s
+
+OK
+# exit code: 0

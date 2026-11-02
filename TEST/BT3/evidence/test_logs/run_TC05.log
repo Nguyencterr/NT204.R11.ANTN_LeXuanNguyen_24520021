@@ -1,0 +1,9 @@
+# command: .venv/bin/python -m unittest tests.test_assignment3_matching.TC05DirectionTestCase -v
+test_forward_event_matches_both_rules (tests.test_assignment3_matching.TC05DirectionTestCase.test_forward_event_matches_both_rules) ... ok
+test_reverse_event_only_matches_bidirectional_rule (tests.test_assignment3_matching.TC05DirectionTestCase.test_reverse_event_only_matches_bidirectional_rule) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+OK
+# exit code: 0

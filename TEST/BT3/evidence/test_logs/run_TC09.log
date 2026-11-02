@@ -1,0 +1,10 @@
+# command: .venv/bin/python -m unittest tests.test_assignment3_matching.TC09ContentNocaseTestCase -v
+test_exact_case_matches_both_rules (tests.test_assignment3_matching.TC09ContentNocaseTestCase.test_exact_case_matches_both_rules) ... ok
+test_lowercase_payload_only_matches_nocase_rule (tests.test_assignment3_matching.TC09ContentNocaseTestCase.test_lowercase_payload_only_matches_nocase_rule) ... ok
+test_uppercase_payload_only_matches_nocase_rule (tests.test_assignment3_matching.TC09ContentNocaseTestCase.test_uppercase_payload_only_matches_nocase_rule) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+OK
+# exit code: 0

@@ -11,8 +11,10 @@ Chương trình hỗ trợ:
 * Phân tích IPv4, TCP và UDP.
 * Nhận diện HTTP, DNS, SMTP và UNKNOWN.
 * **Bài tập 2:** Decoder, Preprocessor và Flow/Connection Tracker cho IDS.
-* **Bài tập 3 (mục 4.1):** Rule Loader của Core Engine — nạp rule từ file `.rules`.
-* Xuất kết quả dưới dạng JSONL (event + flow).
+* **Bài tập 3 (mục 4.1–4.6):** Core Engine — Rule Loader, Rule Parser & Validator,
+  Rule Repository/Indexer, Rule Matching Engine, Rule Evaluation Engine và
+  Detection Event Generator.
+* Xuất kết quả dưới dạng JSONL (event + flow + detection).
 
 Môi trường thực hiện:
 
@@ -64,37 +66,43 @@ Future Feature Extractor / Detection Engine
 
 PCAP và Live Capture sử dụng chung một pipeline (`pipeline/pipeline.py`) với đúng thứ tự `decoder → preprocessor → tracker`.
 
-### 2.3 Pipeline Bài tập 3 (mới đến mục 4.1)
+### 2.3 Pipeline Bài tập 3 (mục 4.1–4.6)
 
 ```text
 rules/*.rules
      │
 ┌────▼──────────────┐
-│ 4.1 Rule Loader   │  ← đã triển khai (core_engine/rule_loader/)
+│ 4.1 Rule Loader   │  core_engine/rule_loader/
 └────┬──────────────┘
      │ RuleSourceEntry (raw_text + source_file + line_number + rule_ref)
 ┌────▼───────────────────┐
-│ 4.2 Parser & Validator │  ← chưa triển khai
+│ 4.2 Parser & Validator │  core_engine/rule_parser/
 └────┬───────────────────┘
-     │
+     │ valid / invalid / unsupported + InternalRule
 ┌────▼──────────────┐
-│ 4.3 Repository /   │  ← chưa triển khai
+│ 4.3 Repository /   │  core_engine/rule_repository/
 │     Indexer        │
 └────┬───────────────┘
      │
-┌────▼──────────────┐     ┌─────────────────┐
+┌────▼──────────────┐     ┌──────────────────┐
 │ 4.4 Matching      │◄────│ Normalized event │ (Bài tập 2)
-└────┬──────────────┘     └─────────────────┘
-     │
+└────┬──────────────┘     └──────────────────┘
+     │  MATCH / NO_MATCH
 ┌────▼──────────────┐
-│ 4.5 Evaluation    │  ← chưa triển khai
+│ 4.5 Evaluation    │  core_engine/evaluation/
 └────┬──────────────┘
      │
 ┌────▼──────────────┐
-│ 4.6 Detection     │  ← chưa triển khai
+│ 4.6 Detection     │  core_engine/detection/
 │     Event         │
 └───────────────────┘
+     │
+ Detection JSONL
 ```
+
+Pipeline thật (`pipeline/pipeline.py`) chạy đúng thứ tự
+`Decoder → Preprocessor → Flow Tracker → Rule Evaluation → Detection JSONL` cho cả PCAP
+và live capture. Khi không truyền rule, pipeline giữ nguyên hành vi Bài tập 1–2.
 
 Rule Loader **không** phụ thuộc Scapy hay Flow Tracker; nó chỉ đọc rule và quản lý nguồn rule.
 
@@ -106,24 +114,32 @@ Rule Loader **không** phụ thuộc Scapy hay Flow Tracker; nó chỉ đọc ru
 .
 ├── README.md
 ├── config.py                 # PipelineConfig: timeout, size limit, invalid policy
-├── main.py                   # CLI (Assignment 1 options + Assignment 2 options)
+├── main.py                   # CLI (Bài 1 + 2 + 3)
 ├── TEST/
 │   ├── tcp_handshake/ ...    # Assignment 1 artifacts
 │   ├── ...
 │   ├── assignment_2/         # Assignment 2 fixtures + results
 │   └── BT3/                  # Assignment 3 fixtures, evidence, reports
 │       ├── README.md
-│       └── rule_loader/
-│           ├── fixtures/     # .rules fixtures cho RL01–RL14
-│           ├── evidence/     # log test + candidates.jsonl
-│           └── REPORT_RULE_LOADER.md
+│       ├── rules/            # .rules fixtures cho TC01–TC14 + smoke
+│       ├── rule_loader/      # report/evidence mục 4.1
+│       ├── reports/          # report TC01–TC14 (mục 4.2–4.6)
+│       └── evidence/
+│           ├── test_logs/    # log unittest thật
+│           ├── jsonl/        # parse result, candidate, event/flow/detection
+│           └── other/        # log CLI
 ├── rules/                    # rule mẫu + cấu hình Rule Loader
 │   ├── rule_loader.json
 │   ├── web.rules
 │   ├── local.rules
 │   └── dos.rules
 ├── core_engine/              # Assignment 3 Core Engine
-│   └── rule_loader/          # mục 4.1: models.py, config.py, loader.py, __main__.py
+│   ├── rule_loader/          # 4.1: models.py, config.py, loader.py, __main__.py
+│   ├── rule_parser/          # 4.2: models.py, tokenizer.py, parser.py
+│   ├── rule_repository/      # 4.3: repository.py
+│   ├── matching/             # 4.4: header, buffers, content, flow, conditions, engine
+│   ├── evaluation/           # 4.5: engine.py
+│   └── detection/            # 4.6: generator.py
 ├── capture/
 │   ├── __init__.py
 │   ├── live.py
@@ -143,15 +159,19 @@ Rule Loader **không** phụ thuộc Scapy hay Flow Tracker; nó chỉ đọc ru
 ├── preprocessor/
 │   └── preprocessor.py       # preprocess_event()
 ├── flow/
-│   └── tracker.py            # FlowTracker / Flow
+│   ├── tracker.py            # FlowTracker / Flow
+│   └── context.py            # adapter client/server + established cho flow:
 ├── pipeline/
 │   └── pipeline.py           # IdsPipeline orchestrator
 ├── tests/
 │   ├── generate_test_pcaps.py
 │   ├── generate_malformed_pcap.py
 │   ├── generate_assignment2_fixtures.py
+│   ├── generate_bt3_evidence.py
+│   ├── bt3_support.py
 │   ├── test_assignment2_*.py
-│   └── test_rule_loader.py   # RL01–RL14 (Assignment 3, mục 4.1)
+│   ├── test_assignment3_*.py # TC01–TC14 (mục 4.2–4.6)
+│   └── test_rule_loader.py   # RL01–RL14 (mục 4.1)
 ├── requirements.txt
 └── output/
 ```
@@ -163,9 +183,17 @@ Rule Loader **không** phụ thuộc Scapy hay Flow Tracker; nó chỉ đọc ru
 ### 4.1 Chạy với PCAP
 
 ```bash
+# Bài tập 2: event + flow
 python main.py --pcap TEST/assignment_2/input_mixed.pcap \
     --output output/events.jsonl \
     --flows-output output/flows.jsonl
+
+# Bài tập 3: thêm rule + detection
+python main.py --pcap TEST/assignment_2/input_mixed.pcap \
+    --rules TEST/BT3/rules/smoke.rules \
+    --output output/events.jsonl \
+    --flows-output output/flows.jsonl \
+    --detections-output output/detections.jsonl
 ```
 
 ### 4.2 Chạy live capture
@@ -190,6 +218,10 @@ python main.py --list-interfaces
 | `--max-decoded-size` | `65536` | Giới hạn độ dài chuỗi đã decode (char) |
 | `--max-payload-size` | `8192` | Giới hạn raw payload xử lý trong Decoder (bytes) |
 | `--invalid-event-policy` | `mark` | `keep` / `mark` / `skip` cho event invalid |
+| `--rules` | – | File `.rules` hoặc thư mục (lặp lại được); thư mục được mở rộng theo `*.rules` đã sắp xếp |
+| `--rule-config` | – | File JSON cấu hình Rule Loader (mục 4.1) |
+| `--detections-output` | `output/detections.jsonl` | File Detection Event JSONL (chỉ ghi khi có rule) |
+| `--duplicate-sid-policy` | `reject` | `reject` / `warn_keep`; không bao giờ ghi đè SID âm thầm |
 
 ### 4.4 Chạy test
 
@@ -201,6 +233,20 @@ Chỉ test Rule Loader (Bài tập 3, mục 4.1):
 
 ```bash
 python -m unittest tests.test_rule_loader -v
+```
+
+Chỉ test Core Engine mục 4.2–4.6 (TC01–TC14):
+
+```bash
+python -m unittest tests.test_assignment3_parser tests.test_assignment3_repository \
+    tests.test_assignment3_matching tests.test_assignment3_evaluation \
+    tests.test_assignment3_pipeline -v
+```
+
+Tạo lại toàn bộ JSONL/log bằng chứng Bài tập 3:
+
+```bash
+python tests/generate_bt3_evidence.py
 ```
 
 Tạo lại fixture Assignment 2:
@@ -420,6 +466,38 @@ OK
 Index testcase, bằng chứng và lệnh tái hiện: [`TEST/BT3/README.md`](TEST/BT3/README.md).
 Report chi tiết: [`TEST/BT3/rule_loader/REPORT_RULE_LOADER.md`](TEST/BT3/rule_loader/REPORT_RULE_LOADER.md).
 
+### 8.4 Bài tập 3 — Core Engine (TC01–TC14)
+
+| ID | Tình huống | Kết quả |
+| --: | --- | --- |
+| TC01 | Loader → Parser → Pipeline → Detection end-to-end | 3 detection đúng SID — **PASS** |
+| TC02 | Rule sai cú pháp | `invalid`, rule sau vẫn parse — **PASS** |
+| TC03 | Keyword ngoài phạm vi | `unsupported`, không vào repository — **PASS** |
+| TC04 | Header any/IPv4/CIDR/port/range/hướng | parse + validate đúng — **PASS** |
+| TC05 | `->` vs `<>` | một chiều / hai chiều kèm `orientation` — **PASS** |
+| TC06 | Indexer candidate | không bỏ sót rule, thứ tự ổn định — **PASS** |
+| TC07 | Header mismatch | short-circuit trước content — **PASS** |
+| TC08 | `flow:` conditions | dùng tracker adapter, không bịa state — **PASS** |
+| TC09 | `content` / `nocase` | phân biệt hoa/thường đúng — **PASS** |
+| TC10 | `offset` / `depth` | cửa sổ tuyệt đối, biên đúng — **PASS** |
+| TC11 | `distance` / `within` | tương đối + backtracking — **PASS** |
+| TC12 | `flags` / `dsize` | đúng cờ, dsize theo payload — **PASS** |
+| TC13 | Nhiều match | nhiều Detection Event độc lập — **PASS** |
+| TC14 | Detection schema | đủ trường + `matched_info` — **PASS** |
+
+Kết quả test gần nhất (chạy tại repo):
+
+```text
+Ran 63 tests in 0.031s
+OK
+```
+
+Regression toàn repository: `Ran 154 tests ... OK` (91 test Bài 1–2 + 4.1, 63 test 4.2–4.6).
+
+Report từng testcase: [`TEST/BT3/reports/README.md`](TEST/BT3/reports/README.md).
+Bằng chứng thật: `TEST/BT3/evidence/` (test log, parse result JSONL, candidate JSONL,
+event/flow/detection JSONL, CLI log).
+
 ---
 
 ## 9. Bài tập 3 — Rule Loader (mục 4.1)
@@ -481,7 +559,7 @@ result = RuleLoader(config).load()
 
 print(result.statistics.to_dict())      # files_loaded, rules_emitted, ...
 for candidate in result.rules:          # giao cho mục 4.2
-    parser_validator.parse(candidate)   # parser_validator chưa được viết ở mục 4.1
+    parser_validator.parse(candidate)   # RuleParserValidator (mục 4.2)
 
 for warning in result.warnings:
     print(warning.code, warning.message)
@@ -496,35 +574,201 @@ Callback cũng được hỗ trợ: `RuleLoader(config).load(handler=parser_vali
 
 ```bash
 python -m unittest tests.test_rule_loader -v     # 37 test RL01–RL14
-python -m unittest discover -s tests -v          # 91 test toàn repository
+python -m unittest discover -s tests -v          # 154 test toàn repository
 ```
 
 Fixture: `TEST/BT3/rule_loader/fixtures/`. Bằng chứng: `TEST/BT3/rule_loader/evidence/`.
 
-### 9.6 Phạm vi đã hoàn thành
+### 9.6 Phạm vi
 
 * **Đã làm — mục 4.1 Rule Loader:** đọc nhiều file, lọc comment/dòng trắng, enable/disable file
   và rule, cô lập lỗi, thống kê/logging, data contract bàn giao cho mục 4.2, test RL01–RL14.
-* **Chưa làm:** 4.2 Rule Parser & Validator, 4.3 Rule Repository/Indexer, 4.4 Rule Matching
-  Engine, 4.5 Rule Evaluation Engine, 4.6 Detection Event Generator; chưa có alert/logging/response.
+* **Đã làm — mục 4.2–4.6:** parser/validator, repository/indexer, matching, evaluation và
+  detection generator; xem mục 10 bên dưới.
 
 ---
 
-## 10. Hạn chế hiện tại
+## 10. Bài tập 3 — Core Engine (mục 4.2–4.6)
+
+### 10.1 Subset Snort được hỗ trợ
+
+Đây là **subset**, không phải Snort đầy đủ. Mọi thứ ngoài bảng dưới được phân loại
+`unsupported` (hợp lệ nhưng ngoài phạm vi) hoặc `invalid` (sai cú pháp), không bị bỏ qua
+âm thầm.
+
+| Thành phần | Giá trị hỗ trợ |
+| --- | --- |
+| Action | `alert` |
+| Protocol | `tcp`, `udp` |
+| Address | `any`, IPv4 đơn, IPv4 CIDR (`192.168.1.0/24`) |
+| Port | `any`, port đơn, range `1000:2000`, range mở `:1024`, `1024:` |
+| Direction | `->` (một chiều), `<>` (hai chiều) |
+| Metadata | `msg` (bắt buộc), `sid` (bắt buộc), `rev` (mặc định `1`), `classtype`, `priority` |
+| Content | `content`, `nocase`, `offset`, `depth`, `distance`, `within` |
+| TCP | `flags` với `S`, `A`, `F`, `R`, `P`, `U` |
+| Payload | `dsize` với `>`, `<`, `=`, `>=`, `<=`; số trần nghĩa là `=` |
+| Flow | `flow:to_server`, `to_client`, `established`, `not_established` |
+
+Ngoài phạm vi (ví dụ): action khác `alert`, `icmp`, IPv6, phủ định `!`, danh sách địa chỉ/port,
+`pcre`, `byte_test`, `byte_jump`, `uricontent`, `http_*`, `rawbytes`, hex content `|...|`,
+escape `\xNN`, `flags` modifier `+*!`, `dsize` dạng range/`!=`, `flow:only_stream`.
+Các keyword no-value đã biết của Snort được báo `unsupported`; token lạ không có
+`name:value` được báo `invalid`.
+
+### 10.2 Parser & Validator (`core_engine/rule_parser/`)
+
+* Mỗi candidate nhận đúng một trong ba trạng thái: `valid`, `invalid`, `unsupported`.
+* `sid` và `msg` là bắt buộc; `rev` thiếu ⇒ `1` (được tài liệu hoá).
+* Option trùng lặp, modifier không có `content` trước, `distance`/`within` trộn với
+  `offset`/`depth`, `flags` trên UDP, `dsize` sai kiểu ⇒ `invalid`.
+* Rule lỗi được cô lập: parser luôn trả kết quả, không ném exception ra pipeline.
+* Kết quả là `InternalRule` có kiểu rõ ràng, không phải `dict` tự do.
+
+### 10.3 Repository / Indexer (`core_engine/rule_repository/`)
+
+* Chỉ rule `valid` được đưa vào tập so khớp; `invalid`/`unsupported` được giữ làm
+  diagnostic để truy vết.
+* **Duplicate SID:** mặc định `reject` (rule sau bị từ chối, rule đầu giữ nguyên).
+  Policy `warn_keep` giữ cả hai và ghi diagnostic; **không bao giờ ghi đè âm thầm**.
+* Index theo protocol + port trả **superset** candidate, sau đó lọc lại bằng
+  `match_rule_header` dùng chung với matching engine — index không thể bỏ sót rule mà
+  matcher sẽ khớp.
+* `CandidateSelection` báo `pool_size`, `port_candidate_count`, `candidate_count`, `sids`.
+
+### 10.4 Matching Engine (`core_engine/matching/`)
+
+Thứ tự đánh giá (short-circuit):
+
+1. Header: protocol, địa chỉ, port, hướng.
+2. `flow:` conditions.
+3. TCP `flags`.
+4. `dsize`.
+5. Chuỗi `content`.
+
+Quy ước quan trọng:
+
+* `->` chỉ khớp chiều thuận. `<>` khớp cả hai chiều và ghi `orientation`
+  (`forward`/`reverse`) vào `matched_info`.
+* Buffer tìm kiếm tách biệt, không nối: `payload`, `decoded_payload`, `http_uri`,
+  `http_body`, `http_decoded_body`, `mime_body`, `dns_name`, `http_host`.
+* `offset`/`depth` là cửa sổ tuyệt đối `[offset, offset + depth)`.
+* `distance`/`within` neo vào cuối match trước: `[prev_end + distance, prev_end + distance + within)`.
+* Nếu lần xuất hiện đầu không dẫn tới chuỗi khớp, matcher **backtrack** sang lần sau.
+* `nocase` chỉ gập ASCII (`bytes.lower()`) để giữ đúng vị trí byte UTF-8.
+* `flags`: mọi cờ khai báo phải có mặt; cờ thừa không cản trở; thiếu flags ⇒ NO_MATCH.
+* `dsize`: dùng `payload_length` (không dùng `packet_length`/frame/flow byte).
+
+### 10.5 Flow adapter (`flow/context.py`)
+
+Tracker Bài 2 không tự biết client/server, nên adapter suy luận có bằng chứng:
+
+1. TCP SYN (không ACK) ⇒ sender là client.
+2. Nếu đúng một endpoint dùng port server nổi tiếng ⇒ endpoint đó là server.
+3. Nếu cả hai port đã biết và khác nhau ⇒ port thấp hơn là server (heuristic).
+4. Còn lại ⇒ vai trò `unknown`; `to_server`/`to_client` là `null`, rule yêu cầu sẽ
+   NO_MATCH thay vì bịa state.
+
+`role_source` ghi lại quy tắc đã dùng. TCP `established` dựa trên `ever_established`.
+UDP không mô phỏng handshake: flow `OPEN` được quy ước là `established` (tài liệu hoá rõ).
+
+### 10.6 Evaluation & Detection (`core_engine/evaluation/`, `core_engine/detection/`)
+
+* Mỗi event: lấy candidate → đánh giá **tất cả** candidate → thu **tất cả** match.
+* Lỗi một candidate/detection được cô lập, không dừng event hay pipeline.
+* Thống kê: `events_evaluated`, `candidate_rules`, `matches`, `no_match_count`,
+  `invalid_event_count`, `errors`, `detections_generated`.
+* Mỗi match sinh một Detection Event riêng, schema `bt3.detection.v1`.
+
+Detection JSONL mẫu:
+
+```json
+{
+  "schema_version": "bt3.detection.v1",
+  "timestamp": 1001.0,
+  "packet_id": 6,
+  "action": "alert",
+  "sid": 4101001,
+  "rev": 1,
+  "msg": "BT3 smoke SQLi decoded URI",
+  "priority": 1,
+  "classtype": "web-application-attack",
+  "src_ip": "192.168.1.10",
+  "dst_ip": "192.168.1.20",
+  "src_port": 50001,
+  "dst_port": 8080,
+  "protocol": "TCP",
+  "application_protocol": "HTTP",
+  "flow_id": "sha256[:32]",
+  "matched_info": {
+    "orientation": "forward",
+    "buffer": "http_uri",
+    "content_matches": [
+      {"condition_index": 0, "content": "OR 1=1", "position": 12, "end": 18}
+    ],
+    "details": {"header": {}, "flow": {}, "flags": {}, "dsize": {}, "content": {}},
+    "reason": null,
+    "flow_conditions": null
+  },
+  "rule": {
+    "sid": 4101001, "rev": 1, "msg": "BT3 smoke SQLi decoded URI",
+    "rule_ref": "smoke.rules:2", "source_file": "smoke.rules",
+    "line_number": 2, "raw_text": "alert tcp ..."
+  }
+}
+```
+
+### 10.7 Tích hợp pipeline và CLI
+
+* `pipeline/pipeline.py`: `Decoder → Preprocessor → Tracker → Rule Evaluation`, dùng chung
+  cho PCAP và live capture.
+* `main.py` nạp rule qua `--rules` hoặc `--rule-config`, parse, build repository, rồi ghi
+  Detection JSONL qua `--detections-output`.
+* File output được reset trước khi ghi; writer luôn được đóng trong `finally`.
+* Không truyền rule ⇒ không tạo detection writer, hành vi Bài 1–2 giữ nguyên.
+* Rule lỗi chỉ in cảnh báo ra `stderr`; process vẫn tiếp tục.
+
+### 10.8 Test và bằng chứng
+
+```bash
+python -m unittest tests.test_assignment3_parser tests.test_assignment3_repository \
+    tests.test_assignment3_matching tests.test_assignment3_evaluation \
+    tests.test_assignment3_pipeline -v
+python -m unittest discover -s tests -v
+```
+
+Kết quả thật: **63/63** test Assignment 3 PASS, **154/154** test toàn repository PASS.
+Report TC01–TC14: `TEST/BT3/reports/`. Bằng chứng: `TEST/BT3/evidence/`.
+
+### 10.9 Hạn chế của mục 4.2–4.6
+
+* Chỉ hỗ trợ subset ở mục 10.1; không có PCRE, binary content, sticky buffer `http_*`,
+  danh sách/phủ định địa chỉ-port.
+* Matching chạy trên **từng packet event**, chưa reassembly TCP stream; một pattern nằm
+  vắt qua hai packet sẽ không khớp.
+* Chưa có alert suppression/thresholding: cùng một flow có thể sinh nhiều detection nếu
+  nhiều packet khớp.
+* Vai trò client/server là heuristic có bằng chứng, không phải ground truth.
+* UDP `established` là quy ước của bài, không phải trạng thái giao thức thật.
+* Chưa xử lý IP fragmentation và chưa hot-reload rule khi đang chạy.
+* Detection chưa được gửi tới SIEM/response; chỉ ghi JSONL.
+
+---
+
+## 11. Hạn chế hiện tại
 
 * Không giải mã TLS/HTTPS (chỉ phân tích HTTP/1.x plaintext).
 * MIME chỉ được decode khi payload chứa đủ header `Content-Transfer-Encoding` và body; không coi mọi body SMTP là MIME.
 * DNS payload binary khi decode sang text sẽ bị đánh dấu `partial` — đây là hành vi đúng của character decoder.
 * Raw payload chỉ giữ prefix có giới hạn (`max_payload_size`), dạng base64 để tương thích JSONL (đánh đổi riêng tư / volume dữ liệu).
 * Flow tracker chưa xử lý IP fragmentation reassembly.
-* Rule Loader (Bài tập 3, mục 4.1) chưa parse Snort rule: `rule_ref` dựa trên số dòng nên khi chèn/xoá dòng phải cập nhật `rule_overrides`; chưa có index/dedup rule (mục 4.3) và chưa xử lý directive `include`.
+* Rule `rule_ref` dựa trên số dòng nên khi chèn/xoá dòng phải cập nhật `rule_overrides`; chưa xử lý directive `include`.
 * Rule Loader không hot-reload file rule; mỗi lần đổi cấu hình phải gọi `load()` lại.
-* Rule Loader chưa được nối vào `main.py` của pipeline Bài 1–2 (giữ nguyên hành vi CLI cũ); loader có CLI riêng `python -m core_engine.rule_loader`.
+* Rule Loader có CLI riêng `python -m core_engine.rule_loader`; pipeline dùng chung loader qua `--rules`/`--rule-config`.
 * Encoding mặc định UTF-8 `strict`; policy `replace` là tuỳ chọn có mất dữ liệu.
 
 ---
 
-## 11. AI Disclosure
+## 12. AI Disclosure
 
 ### Bài tập 1
 
@@ -565,6 +809,32 @@ AI-assisted trong Assignment 3 — mục 4.1:
 * Viết test RL01–RL14 (`tests/test_rule_loader.py`).
 * Tạo report/evidence (`TEST/BT3/`) và cập nhật README.
 
-Mục 4.2–4.6 **không** được AI sinh code trong lần làm này (chưa triển khai).
-Toàn bộ lệnh test, log và kết quả trong `TEST/BT3/rule_loader/evidence/` là kết quả chạy thật
-trong môi trường WSL; người thực hiện cần đọc, review và hiểu code trước khi nộp.
+### Bài tập 3 (mục 4.2–4.6 Rule Parser → Detection)
+
+Công cụ AI sử dụng: coding agent **DeepSeek V4.1 Flash Free** chạy trong **OpenCode**,
+tiếp tục trên cùng repository.
+
+AI-assisted trong Assignment 3 — mục 4.2–4.6:
+
+* Thiết kế/viết tokenizer, parser, validator và `InternalRule`
+  (`core_engine/rule_parser/`).
+* Viết repository/indexer, duplicate-SID policy, diagnostic và thống kê candidate
+  (`core_engine/rule_repository/`).
+* Viết matching engine: header, buffer, content/modifier, flags, dsize, flow
+  (`core_engine/matching/`).
+* Viết evaluation engine, thống kê và cô lập lỗi (`core_engine/evaluation/`).
+* Viết Detection Event Generator và schema `bt3.detection.v1`
+  (`core_engine/detection/`).
+* Viết adapter client/server + `established` cho `flow:` (`flow/context.py`) và bổ sung
+  additive `syn_sender`, `ever_established`, `last_context` vào `flow/tracker.py`.
+* Tích hợp rule engine vào `pipeline/pipeline.py` và CLI `main.py`.
+* Tạo fixture `.rules`, test TC01–TC14 (`tests/test_assignment3_*.py`), helper
+  `tests/bt3_support.py` và script tái tạo bằng chứng `tests/generate_bt3_evidence.py`.
+* Tạo report `TEST/BT3/reports/`, JSONL/log bằng chứng `TEST/BT3/evidence/` và cập nhật
+  README.
+
+**Minh bạch về kết quả:** mọi log test, JSONL output và CLI log trong
+`TEST/BT3/evidence/` đều được sinh bằng lệnh chạy thật trong môi trường WSL của repository;
+không có log hay kết quả nào được viết tay thay thế. Các con số được báo cáo:
+63/63 test Assignment 3 PASS và 154/154 test toàn repository PASS tại thời điểm tạo report.
+Người thực hiện cần đọc, review và hiểu code trước khi nộp.

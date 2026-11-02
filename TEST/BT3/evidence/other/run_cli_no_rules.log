@@ -1,0 +1,5 @@
+# command: /home/Nguyencter/NT204.R11.ANTN_LeXuanNguyen_24520021/.venv/bin/python main.py --pcap TEST/assignment_2/input_mixed.pcap --output TEST/BT3/evidence/jsonl/no_rules_events.jsonl --flows-output TEST/BT3/evidence/jsonl/no_rules_flows.jsonl
+# exit code: 0
+Finished processing 15 packets.
+Events: TEST/BT3/evidence/jsonl/no_rules_events.jsonl (15 written, 0 skipped)
+Flows:  TEST/BT3/evidence/jsonl/no_rules_flows.jsonl (7 finalized)

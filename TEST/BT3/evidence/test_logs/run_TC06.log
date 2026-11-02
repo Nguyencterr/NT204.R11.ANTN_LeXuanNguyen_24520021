@@ -1,0 +1,12 @@
+# command: .venv/bin/python -m unittest tests.test_assignment3_repository.TC06IndexerTestCase -v
+test_candidate_order_is_stable_across_rebuild (tests.test_assignment3_repository.TC06IndexerTestCase.test_candidate_order_is_stable_across_rebuild) ... ok
+test_open_ended_low_range_is_not_lost (tests.test_assignment3_repository.TC06IndexerTestCase.test_open_ended_low_range_is_not_lost) ... ok
+test_tcp_any_single_and_high_range_are_candidates (tests.test_assignment3_repository.TC06IndexerTestCase.test_tcp_any_single_and_high_range_are_candidates) ... ok
+test_udp_and_bidirectional_reverse_candidate (tests.test_assignment3_repository.TC06IndexerTestCase.test_udp_and_bidirectional_reverse_candidate) ... ok
+test_unknown_protocol_returns_no_candidate (tests.test_assignment3_repository.TC06IndexerTestCase.test_unknown_protocol_returns_no_candidate) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.001s
+
+OK
+# exit code: 0

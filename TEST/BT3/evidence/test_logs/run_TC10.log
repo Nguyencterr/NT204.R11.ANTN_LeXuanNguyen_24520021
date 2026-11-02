@@ -1,0 +1,11 @@
+# command: .venv/bin/python -m unittest tests.test_assignment3_matching.TC10OffsetDepthTestCase -v
+test_content_after_window_does_not_match (tests.test_assignment3_matching.TC10OffsetDepthTestCase.test_content_after_window_does_not_match) ... ok
+test_content_inside_window_matches (tests.test_assignment3_matching.TC10OffsetDepthTestCase.test_content_inside_window_matches) ... ok
+test_pattern_crossing_window_end_does_not_match (tests.test_assignment3_matching.TC10OffsetDepthTestCase.test_pattern_crossing_window_end_does_not_match) ... ok
+test_window_boundary_is_inclusive_of_a_full_pattern (tests.test_assignment3_matching.TC10OffsetDepthTestCase.test_window_boundary_is_inclusive_of_a_full_pattern) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.001s
+
+OK
+# exit code: 0

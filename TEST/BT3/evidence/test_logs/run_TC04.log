@@ -1,0 +1,14 @@
+# command: .venv/bin/python -m unittest tests.test_assignment3_parser.TC04HeaderParsingTestCase -v
+test_any_selectors_and_forward_direction (tests.test_assignment3_parser.TC04HeaderParsingTestCase.test_any_selectors_and_forward_direction) ... ok
+test_cidr_range_ipv4_and_port (tests.test_assignment3_parser.TC04HeaderParsingTestCase.test_cidr_range_ipv4_and_port) ... ok
+test_every_header_rule_is_valid (tests.test_assignment3_parser.TC04HeaderParsingTestCase.test_every_header_rule_is_valid) ... ok
+test_invalid_ip_port_and_direction_are_invalid (tests.test_assignment3_parser.TC04HeaderParsingTestCase.test_invalid_ip_port_and_direction_are_invalid) ... ok
+test_open_ended_port_ranges (tests.test_assignment3_parser.TC04HeaderParsingTestCase.test_open_ended_port_ranges) ... ok
+test_single_ipv4_and_single_port (tests.test_assignment3_parser.TC04HeaderParsingTestCase.test_single_ipv4_and_single_port) ... ok
+test_udp_and_bidirectional_header (tests.test_assignment3_parser.TC04HeaderParsingTestCase.test_udp_and_bidirectional_header) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.001s
+
+OK
+# exit code: 0

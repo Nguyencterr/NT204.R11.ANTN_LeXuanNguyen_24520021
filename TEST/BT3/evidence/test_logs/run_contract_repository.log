@@ -1,0 +1,10 @@
+# command: .venv/bin/python -m unittest tests.test_assignment3_repository.RepositoryDiagnosticsTestCase -v
+test_duplicate_sid_rejected_by_default (tests.test_assignment3_repository.RepositoryDiagnosticsTestCase.test_duplicate_sid_rejected_by_default) ... ok
+test_duplicate_sid_warn_keep_keeps_both_rules (tests.test_assignment3_repository.RepositoryDiagnosticsTestCase.test_duplicate_sid_warn_keep_keeps_both_rules) ... ok
+test_invalid_rules_are_counted_but_not_stored (tests.test_assignment3_repository.RepositoryDiagnosticsTestCase.test_invalid_rules_are_counted_but_not_stored) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+OK
+# exit code: 0

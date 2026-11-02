@@ -1,0 +1,13 @@
+# command: .venv/bin/python -m unittest tests.test_assignment3_parser.ParserOptionContractTestCase -v
+test_content_modifier_misuse_is_invalid (tests.test_assignment3_parser.ParserOptionContractTestCase.test_content_modifier_misuse_is_invalid) ... ok
+test_dsize_value_validation (tests.test_assignment3_parser.ParserOptionContractTestCase.test_dsize_value_validation) ... ok
+test_flow_contradictions_and_unknown_condition (tests.test_assignment3_parser.ParserOptionContractTestCase.test_flow_contradictions_and_unknown_condition) ... ok
+test_quoted_delimiters_are_preserved (tests.test_assignment3_parser.ParserOptionContractTestCase.test_quoted_delimiters_are_preserved) ... ok
+test_sid_and_msg_are_required (tests.test_assignment3_parser.ParserOptionContractTestCase.test_sid_and_msg_are_required) ... ok
+test_udp_flags_is_invalid (tests.test_assignment3_parser.ParserOptionContractTestCase.test_udp_flags_is_invalid) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.001s
+
+OK
+# exit code: 0
