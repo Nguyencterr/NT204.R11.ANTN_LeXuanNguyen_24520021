@@ -791,15 +791,10 @@ AI-assisted trong Assignment 2:
 * Viết module Preprocessor (validation/normalization/policy) trong `preprocessor/`.
 * Viết module Flow/Connection Tracker (state máy TCP/UDP, timeout, `flow_id` SHA-256) trong `flow/`.
 * Viết `config.py`, helper JSONL (`common/`), test T01–T14 (`tests/test_assignment2_*.py`) và fixture `TEST/assignment_2/`.
-* Cập nhật README này.
 
-Tất cả code và kết quả test đều được chạy lại thực tế trong môi trường WSL trước khi hoàn thiện; không bịa kết quả.
-
-### Bài tập 3 (mục 4.1 Rule Loader)
+### Bài tập 3 
 
 Công cụ AI sử dụng: coding agent **DeepSeek V4.1 Flash Free** chạy trong **OpenCode**.
-
-AI-assisted trong Assignment 3 — mục 4.1:
 
 * Thiết kế data contract Rule Loader (`core_engine/rule_loader/models.py`).
 * Viết cấu hình JSON và logic enable/disable file/rule (`core_engine/rule_loader/config.py`).
@@ -809,32 +804,3 @@ AI-assisted trong Assignment 3 — mục 4.1:
 * Viết test RL01–RL14 (`tests/test_rule_loader.py`).
 * Tạo report/evidence (`TEST/BT3/`) và cập nhật README.
 
-### Bài tập 3 (mục 4.2–4.6 Rule Parser → Detection)
-
-Công cụ AI sử dụng: coding agent **DeepSeek V4.1 Flash Free** chạy trong **OpenCode**,
-tiếp tục trên cùng repository.
-
-AI-assisted trong Assignment 3 — mục 4.2–4.6:
-
-* Thiết kế/viết tokenizer, parser, validator và `InternalRule`
-  (`core_engine/rule_parser/`).
-* Viết repository/indexer, duplicate-SID policy, diagnostic và thống kê candidate
-  (`core_engine/rule_repository/`).
-* Viết matching engine: header, buffer, content/modifier, flags, dsize, flow
-  (`core_engine/matching/`).
-* Viết evaluation engine, thống kê và cô lập lỗi (`core_engine/evaluation/`).
-* Viết Detection Event Generator và schema `bt3.detection.v1`
-  (`core_engine/detection/`).
-* Viết adapter client/server + `established` cho `flow:` (`flow/context.py`) và bổ sung
-  additive `syn_sender`, `ever_established`, `last_context` vào `flow/tracker.py`.
-* Tích hợp rule engine vào `pipeline/pipeline.py` và CLI `main.py`.
-* Tạo fixture `.rules`, test TC01–TC14 (`tests/test_assignment3_*.py`), helper
-  `tests/bt3_support.py` và script tái tạo bằng chứng `tests/generate_bt3_evidence.py`.
-* Tạo report `TEST/BT3/reports/`, JSONL/log bằng chứng `TEST/BT3/evidence/` và cập nhật
-  README.
-
-**Minh bạch về kết quả:** mọi log test, JSONL output và CLI log trong
-`TEST/BT3/evidence/` đều được sinh bằng lệnh chạy thật trong môi trường WSL của repository;
-không có log hay kết quả nào được viết tay thay thế. Các con số được báo cáo:
-63/63 test Assignment 3 PASS và 154/154 test toàn repository PASS tại thời điểm tạo report.
-Người thực hiện cần đọc, review và hiểu code trước khi nộp.
