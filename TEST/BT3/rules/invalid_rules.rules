@@ -1,0 +1,5 @@
+# TC02 malformed rules followed by a valid rule.
+alert tcp any any -> any any (msg:"TC02 missing sid value"; sid:;)
+alert tcp any any -> any any (msg:"TC02 unclosed quote; sid:4100202; rev:1;)
+alert tcp any any - > any any (msg:"TC02 broken direction"; sid:4100203; rev:1;)
+alert tcp any any -> any any (msg:"TC02 valid after invalid"; content:"ok"; sid:4100204; rev:1;)

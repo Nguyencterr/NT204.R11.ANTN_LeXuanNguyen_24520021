@@ -1,0 +1,4 @@
+# Invalid or unsupported dsize values.
+alert tcp any any -> any 80 (msg:"negative dsize"; dsize:-1; sid:4101601; rev:1;)
+alert tcp any any -> any 80 (msg:"range dsize"; dsize:10<>20; sid:4101602; rev:1;)
+alert tcp any any -> any 80 (msg:"bad dsize"; dsize:abc; sid:4101603; rev:1;)

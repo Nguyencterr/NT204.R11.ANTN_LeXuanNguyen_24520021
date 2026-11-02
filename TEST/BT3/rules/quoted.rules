@@ -1,0 +1,2 @@
+# Quoted delimiters must not break header/option tokenization.
+alert tcp any any -> any 80 (msg:"semi; colon: comma, parens () and quote \" inside"; content:"a;b:c,d(e)"; sid:4101201; rev:1;)

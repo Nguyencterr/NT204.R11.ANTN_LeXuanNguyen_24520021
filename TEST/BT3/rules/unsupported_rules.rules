@@ -1,0 +1,5 @@
+# TC03 keywords outside the supported subset.
+alert tcp any any -> any any (msg:"TC03 pcre"; pcre:"/foo/i"; sid:4100301; rev:1;)
+alert tcp any any -> any any (msg:"TC03 byte_test"; byte_test:1,>,2,0; sid:4100302; rev:1;)
+alert icmp any any -> any any (msg:"TC03 icmp"; sid:4100303; rev:1;)
+alert tcp any any -> any any (msg:"TC03 valid after unsupported"; content:"ok"; sid:4100304; rev:1;)

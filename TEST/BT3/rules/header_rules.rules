@@ -1,0 +1,8 @@
+# TC04/TC06 header selectors: any, IPv4, CIDR, port, range, direction.
+alert tcp any any -> any any (msg:"TC04 tcp any"; sid:4100101; rev:1;)
+alert tcp 192.168.1.0/24 1024:2000 -> 10.0.0.5 80 (msg:"TC04 tcp cidr range"; sid:4100102; rev:1;)
+alert tcp 192.168.1.10 12345 -> 192.168.1.20 80 (msg:"TC04 tcp single"; sid:4100103; rev:1;)
+alert udp any any -> any 53 (msg:"TC04 udp dns"; sid:4100104; rev:1;)
+alert udp 8.8.8.0/24 any <> 192.168.1.0/24 any (msg:"TC04 udp bidir cidr"; sid:4100105; rev:1;)
+alert tcp any :1024 -> any 80 (msg:"TC04 open range low"; sid:4100106; rev:1;)
+alert tcp any 1024: -> any any (msg:"TC04 open range high"; sid:4100107; rev:1;)

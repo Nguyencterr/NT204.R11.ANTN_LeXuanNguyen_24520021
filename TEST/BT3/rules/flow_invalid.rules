@@ -1,0 +1,4 @@
+# Invalid or unsupported flow combinations.
+alert tcp any any -> any 80 (msg:"both directions"; flow:to_server,to_client; sid:4101501; rev:1;)
+alert tcp any any -> any 80 (msg:"both states"; flow:established,not_established; sid:4101502; rev:1;)
+alert udp any any -> any 53 (msg:"unknown flow"; flow:only_stream; sid:4101503; rev:1;)

@@ -1,0 +1,4 @@
+# Content modifier misuse.
+alert tcp any any -> any 80 (nocase; content:"x"; sid:4101401; rev:1;)
+alert tcp any any -> any 80 (content:"x"; distance:2; sid:4101402; rev:1;)
+alert tcp any any -> any 80 (content:"x"; offset:2; distance:1; sid:4101403; rev:1;)
