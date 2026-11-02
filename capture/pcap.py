@@ -5,8 +5,10 @@ def read_pcap(
     filename: str,
 ):
 
+    # Scapy's PcapReader expects a path-like object it can ``open`` itself; a
+    # ``pathlib.Path`` is accepted here for convenience and converted first.
     reader = PcapReader(
-        filename
+        str(filename)
     )
 
     try:

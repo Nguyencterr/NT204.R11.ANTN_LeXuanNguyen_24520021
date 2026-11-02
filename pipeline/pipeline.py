@@ -13,28 +13,38 @@ from preprocessor import ACTION_SKIP, preprocess_event
 
 EventHandler = Callable[[dict[str, Any]], None]
 FlowHandler = Callable[[dict[str, Any]], None]
+DetectionHandler = Callable[[dict[str, Any]], None]
 
 
 class IdsPipeline:
-    """Decoder -> Preprocessor -> Flow/Connection Tracker."""
+    """Decoder -> Preprocessor -> Flow/Connection Tracker -> Rule Engine."""
 
     def __init__(
         self,
         config: PipelineConfig | None = None,
         event_handler: EventHandler | None = None,
         flow_handler: FlowHandler | None = None,
+        rule_engine: Any | None = None,
+        detection_handler: DetectionHandler | None = None,
     ) -> None:
 
         self.config = config or PipelineConfig()
 
         self.event_handler = event_handler
         self.flow_handler = flow_handler
+        self.detection_handler = detection_handler
 
         self.tracker = FlowTracker(self.config)
+
+        # Assignment 3 Core Engine. ``None`` keeps the Assignment 1/2 pipeline
+        # behaviour unchanged when no rule file is configured.
+        self.rule_engine = rule_engine
 
         self.processed_count = 0
         self.skipped_count = 0
         self.flow_count = 0
+        self.detection_count = 0
+        self.last_evaluation: Any | None = None
 
     def process(self, raw_event: Any) -> dict[str, Any] | None:
         """
@@ -75,6 +85,21 @@ class IdsPipeline:
             self.event_handler(prepared)
 
         self._emit_flows(self.tracker.process(prepared))
+
+        if self.rule_engine is not None:
+
+            self.last_evaluation = self.rule_engine.evaluate(
+                prepared,
+                self.tracker.last_context,
+            )
+
+            for detection in self.last_evaluation.detections:
+
+                self.detection_count += 1
+
+                if self.detection_handler is not None:
+
+                    self.detection_handler(detection)
 
         return prepared
 

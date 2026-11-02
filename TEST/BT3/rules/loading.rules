@@ -1,0 +1,6 @@
+# TC01 loader fixture: comments and blank lines must be skipped.
+alert tcp any any -> any 80 (msg:"TC01 first"; content:"first"; sid:4100001; rev:1;)
+
+alert udp any any -> any 53 (msg:"TC01 second"; content:"second"; sid:4100002; rev:1;)
+    # indented comment is still a comment
+alert tcp any any -> any 22 (msg:"TC01 third"; content:"third"; sid:4100003; rev:1;)

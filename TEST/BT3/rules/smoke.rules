@@ -1,0 +1,4 @@
+# End-to-end PCAP smoke rules for TEST/assignment_2/input_mixed.pcap.
+alert tcp any any -> any 8080 (msg:"BT3 smoke SQLi decoded URI"; content:"OR 1=1"; nocase; classtype:web-application-attack; priority:1; sid:4101001; rev:1;)
+alert tcp any any <> any 8080 (msg:"BT3 smoke decoded XSS body"; content:"<script>alert(1)</script>"; sid:4101002; rev:1;)
+alert udp any any -> any 53 (msg:"BT3 smoke DNS name"; content:"example.com"; sid:4101003; rev:1;)
