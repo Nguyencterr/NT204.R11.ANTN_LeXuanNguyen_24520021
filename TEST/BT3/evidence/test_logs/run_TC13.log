@@ -3,7 +3,7 @@ test_all_matching_rules_produce_independent_detections (tests.test_assignment3_e
 test_every_detection_is_json_serializable (tests.test_assignment3_evaluation.TC13MultipleMatchesTestCase.test_every_detection_is_json_serializable) ... ok
 
 ----------------------------------------------------------------------
-Ran 2 tests in 0.001s
+Ran 2 tests in 0.002s
 
 OK
 # exit code: 0

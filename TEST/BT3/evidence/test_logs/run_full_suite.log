@@ -178,7 +178,7 @@ test_rule_ref_does_not_depend_on_working_directory (test_rule_loader.RulePathTes
 test_repository_config_loads (test_rule_loader.ShippedConfigTestCase.test_repository_config_loads) ... ok
 
 ----------------------------------------------------------------------
-Ran 154 tests in 0.049s
+Ran 154 tests in 0.047s
 
 OK
 # exit code: 0

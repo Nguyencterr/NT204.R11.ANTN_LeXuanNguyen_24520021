@@ -6,7 +6,7 @@ test_pipeline_without_rules_keeps_assignment_2_behaviour (tests.test_assignment3
 test_smoke_pcap_generates_expected_detections (tests.test_assignment3_pipeline.PipelineIntegrationTestCase.test_smoke_pcap_generates_expected_detections) ... ok
 
 ----------------------------------------------------------------------
-Ran 3 tests in 0.018s
+Ran 3 tests in 0.019s
 
 OK
 # exit code: 0

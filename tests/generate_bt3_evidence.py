@@ -4,8 +4,8 @@ Run from the repository root::
 
     .venv/bin/python tests/generate_bt3_evidence.py
 
-The script only uses the real loader/parser/repository/CLI code paths, so every
-JSONL file and log under ``TEST/BT3/evidence/`` can be regenerated.
+The script only uses the real loader/parser/repository/pipeline/CLI code paths, so
+every JSONL file and log under ``TEST/BT3/evidence/`` can be regenerated.
 """
 
 from __future__ import annotations
@@ -32,6 +32,95 @@ RULES_DIR = BT3_ROOT / "rules"
 EVIDENCE = BT3_ROOT / "evidence"
 JSONL_DIR = EVIDENCE / "jsonl"
 OTHER_DIR = EVIDENCE / "other"
+TEST_LOG_DIR = EVIDENCE / "test_logs"
+
+
+#: One log per testcase plus the contract/regression suites.
+TEST_LOG_TARGETS = {
+    "TC01_loader": ["tests.test_assignment3_pipeline.TC01LoaderIntegrationTestCase"],
+    "TC01_pipeline": ["tests.test_assignment3_pipeline.PipelineIntegrationTestCase"],
+    "TC02": ["tests.test_assignment3_parser.TC02InvalidRuleTestCase"],
+    "TC03": ["tests.test_assignment3_parser.TC03UnsupportedKeywordTestCase"],
+    "TC04": ["tests.test_assignment3_parser.TC04HeaderParsingTestCase"],
+    "TC05": ["tests.test_assignment3_matching.TC05DirectionTestCase"],
+    "TC06": ["tests.test_assignment3_repository.TC06IndexerTestCase"],
+    "TC07": ["tests.test_assignment3_matching.TC07HeaderShortCircuitTestCase"],
+    "TC08": ["tests.test_assignment3_matching.TC08FlowStateTestCase"],
+    "TC09": ["tests.test_assignment3_matching.TC09ContentNocaseTestCase"],
+    "TC10": ["tests.test_assignment3_matching.TC10OffsetDepthTestCase"],
+    "TC11": ["tests.test_assignment3_matching.TC11DistanceWithinTestCase"],
+    "TC12": ["tests.test_assignment3_matching.TC12FlagsDsizeTestCase"],
+    "TC13": ["tests.test_assignment3_evaluation.TC13MultipleMatchesTestCase"],
+    "TC14": ["tests.test_assignment3_evaluation.TC14DetectionEventTestCase"],
+    "contract_parser": ["tests.test_assignment3_parser.ParserOptionContractTestCase"],
+    "contract_repository": [
+        "tests.test_assignment3_repository.RepositoryDiagnosticsTestCase"
+    ],
+    "contract_evaluation": [
+        "tests.test_assignment3_evaluation.EvaluationStatisticsAndIsolationTestCase"
+    ],
+    "assignment3_suite": [
+        "tests.test_assignment3_parser",
+        "tests.test_assignment3_repository",
+        "tests.test_assignment3_matching",
+        "tests.test_assignment3_evaluation",
+        "tests.test_assignment3_pipeline",
+    ],
+}
+
+
+def _run_and_log(name: str, targets: list[str]) -> None:
+
+    args = [sys.executable, "-m", "unittest", *targets, "-v"]
+    completed = subprocess.run(
+        args,
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    lines = [
+        "# command: .venv/bin/python -m unittest " + " ".join(targets) + " -v",
+        completed.stdout.rstrip() + completed.stderr.rstrip(),
+        f"# exit code: {completed.returncode}",
+    ]
+
+    (TEST_LOG_DIR / f"run_{name}.log").write_text(
+        "\n".join(lines) + "\n",
+        encoding="utf-8",
+    )
+
+
+def generate_test_logs() -> None:
+
+    TEST_LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+    for name, targets in TEST_LOG_TARGETS.items():
+
+        _run_and_log(name, targets)
+
+    # Full repository regression, including Assignment 1/2 and section 4.1.
+    args = [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"]
+    completed = subprocess.run(
+        args,
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    (TEST_LOG_DIR / "run_full_suite.log").write_text(
+        "\n".join(
+            [
+                "# command: .venv/bin/python -m unittest discover -s tests -v",
+                completed.stdout.rstrip() + completed.stderr.rstrip(),
+                f"# exit code: {completed.returncode}",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
 
 def _write_jsonl(path: Path, rows: list[dict]) -> None:
@@ -244,6 +333,7 @@ def run_cli_without_rules() -> None:
 
 def main() -> None:
 
+    generate_test_logs()
     generate_parse_evidence()
     generate_candidate_evidence()
     run_cli_smoke()
